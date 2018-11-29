@@ -1,0 +1,4570 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "v1",
+    "title": "Dayforce API"
+  },
+  "host": "www.dayforcehcm.com",
+  "basePath": "/api",
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "paths": {
+    "/{clientNamespace}/V1/ClientMetadata": {
+      "get": {
+        "tags": [
+          "ClientMetadata"
+        ],
+        "summary": "GET Client Metadata",
+        "operationId": "ClientMetadata_GetAsync_By_clientNamespace",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "text/html"
+        ],
+        "parameters": [
+          {
+            "name": "clientNamespace",
+            "in": "path",
+            "description": "Uniquely identifies the client's Dayforce instance. Is needed to login.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns client metadata.",
+            "schema": {
+              "$ref": "#/definitions/ClientMetadata"
+            }
+          },
+          "400": {
+            "description": "Request is malformed.  Correct and resubmit.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ProcessResult"
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server error occurred.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ProcessResult"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{clientNamespace}/V1/documents/{documentGuid}": {
+      "get": {
+        "tags": [
+          "Documents"
+        ],
+        "summary": "GET Document Details",
+        "operationId": "Documents_Get_By_documentGuid_clientNamespace",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "text/html"
+        ],
+        "parameters": [
+          {
+            "name": "documentGuid",
+            "in": "path",
+            "description": "Uniquely identifies the document you want to retrieve. Partial search is not supported, so provide the full value. Otherwise, a 400 error will be returned.",
+            "required": true,
+            "type": "string",
+            "format": "uuid"
+          },
+          {
+            "name": "clientNamespace",
+            "in": "path",
+            "description": "Uniquely identifies the client's Dayforce instance. Is needed to login.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the document identified by the documentGuid",
+            "schema": {
+              "$ref": "#/definitions/ArchiveDocument"
+            }
+          },
+          "400": {
+            "description": "Request is malformed.  Correct and resubmit.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ProcessResult"
+              }
+            }
+          },
+          "401": {
+            "description": "User is unauthorized to retrieve the required document.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ProcessResult"
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server error occurred.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ProcessResult"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{clientNamespace}/V1/Documents": {
+      "get": {
+        "tags": [
+          "Documents"
+        ],
+        "summary": "GET a List of Documents",
+        "operationId": "Documents_Get_By_employeeXRefCode_clientNamespace",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "text/html"
+        ],
+        "parameters": [
+          {
+            "name": "employeeXRefCode",
+            "in": "query",
+            "description": "Uniquely identifies the employee whose document you want to retrieve. Partial search is not supported, so provide the full value. Otherwise, a 400 error will be returned.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "clientNamespace",
+            "in": "path",
+            "description": "Uniquely identifies the client's Dayforce instance. Is needed to login.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns documents associated with the employeeXRefCode.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/EmployeeFileMetaData"
+              }
+            }
+          },
+          "400": {
+            "description": "Request is malformed.  Correct and resubmit.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ProcessResult"
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server error occurred.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ProcessResult"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{clientNamespace}/V1/Employees": {
+      "get": {
+        "tags": [
+          "Employees"
+        ],
+        "summary": "GET a List of Employees",
+        "operationId": "Employees_Get_By_employeeNumber_employmentStatusXRefCode_orgUnitXRefCode_filterHireStartDate_filterHireEndDate_filterTerminationStartDate_filterTerminationEndDate_filterUpdatedStartDate_filterUpdatedEndDate_contextDate_clientNamespace",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "text/html"
+        ],
+        "parameters": [
+          {
+            "name": "employeeNumber",
+            "in": "query",
+            "description": "Employment identification number assigned to an employee.  A partial value can be provided for a wider search.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "employmentStatusXRefCode",
+            "in": "query",
+            "description": "A case-sensitive field containing employment status values, which can be client-specific. Use a ContextDate value to search for employees with a given status as of a point in time. Otherwise, the search will use the current date and time.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orgUnitXRefCode",
+            "in": "query",
+            "description": "A case-sensitive field that identifies a client's organizational units. Use this to search all levels of the employees’ organization including department, location, region, corporate, etc. Use a ContextDate value to search for employees with a specific value as of a point in time.  Otherwise, the search will use the current date and time.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "filterHireStartDate",
+            "in": "query",
+            "description": "Use to search for employees whose most recent hire date is greater than or equal to the specified value (e.g. 2017-01-01T13:24:56). Use with filterHireEndDate to search for employees hired or rehired in a given timeframe.",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "filterHireEndDate",
+            "in": "query",
+            "description": "This date is used to search for employees whose most recent hire date is less than or equal to the specified value.  Typically this parameter is used in conjunction with FilterHireStartDate to search for employees hired or rehired in a given timeframe. Example: 2017-01-01T13:24:56",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "filterTerminationStartDate",
+            "in": "query",
+            "description": "This date is used to search for employees with termination date values greater than or equal to the specified value.  Typically this parameter is used in conjunction with FilterTerminationStartDate to search for employees terminated in a given timeframe. Example: 2017-01-01T13:24:56",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "filterTerminationEndDate",
+            "in": "query",
+            "description": "This date is used to search for employees with termination date values less than or equal to the specified value.  Typically this parameter is used in conjunction with filterTerminationStartDate to search for employees terminated in a given timeframe. Example: 2017-01-01T13:24:56",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "filterUpdatedStartDate",
+            "in": "query",
+            "description": "The beginning date used when searching for employees with updates (and newly effective records) in a specified timeframe.  When a value is provided for this parameter, a filterUpdatedEndDate value must also be provided. Because this search is conducted across all entities in the HR data model regardless of whether the requesting user has access to them, it is possible that the query will return XRefCode of employees with changes in which the consuming application is not interested.  Example: 2017-01-01T13:24:56",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "filterUpdatedEndDate",
+            "in": "query",
+            "description": "The end date used when searching for employees with updates (and newly effective records) in a specified timeframe.  When a value is provided for this parameter, a filterUpdatedStartDate value must also be provided.   Example: 2017-01-01T13:24:56",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "contextDate",
+            "in": "query",
+            "description": "The Context Date value is an “as-of” date used to determine which employee data to search when records have specific start and end dates.  The service defaults to the current datetime if the requester does not specify a value.  Example: 2017-01-01T13:24:56",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "clientNamespace",
+            "in": "path",
+            "description": "Uniquely identifies the client's Dayforce instance. Is needed to login.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A collection of Employees XRefCodes meeting the search criteria.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Employee"
+              }
+            },
+            "examples": {
+              "application/json": [
+                {
+                  "XRefCode": "string"
+                },
+                {
+                  "XRefCode": "string"
+                }
+              ]
+            }
+          },
+          "400": {
+            "description": "Request is malformed.  Correct and resubmit.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ProcessResult"
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server error occurred.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ProcessResult"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Employees"
+        ],
+        "summary": "POST (Hire) an Employee",
+        "operationId": "Employees_Post_By_employee_isValidateOnly_clientNamespace",
+        "consumes": [
+          "application/json",
+          "text/json",
+          "text/html"
+        ],
+        "produces": [
+          "application/json",
+          "text/json",
+          "text/html"
+        ],
+        "parameters": [
+          {
+            "name": "employee",
+            "in": "body",
+            "description": "The JSON-formatted content containing the data entities and elements to be processed in POST (hire and rehire ) and PATCH (employee update) operations.  For more information and examples, please refer to the Dayforce Web Services RESTful Developer's Guide.",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Employee"
+            }
+          },
+          {
+            "name": "isValidateOnly",
+            "in": "query",
+            "description": "When a TRUE value is used in this parameter, POST (hire and rehire ) and PATCH (employee update) operations validate the request without applying updates to the database.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "clientNamespace",
+            "in": "path",
+            "description": "Uniquely identifies the client's Dayforce instance. Is needed to login.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "An Employee is created, no response body."
+          },
+          "400": {
+            "description": "Request is malformed.  Correct and resubmit.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ProcessResult"
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server error occurred.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ProcessResult"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{clientNamespace}/V1/Employees/{xRefCode}": {
+      "get": {
+        "tags": [
+          "Employees"
+        ],
+        "summary": "GET Employee Details",
+        "operationId": "Employees_Get_By_xRefCode_contextDate_expand_clientNamespace",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "text/html"
+        ],
+        "parameters": [
+          {
+            "name": "xRefCode",
+            "in": "path",
+            "description": "The unique identifier (external reference code) of the employee to be retrieved.  The value provided must be the exact match for an employee; otherwise, a bad request (400) error will be returned.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "contextDate",
+            "in": "query",
+            "description": "The Context Date value is an “as-of” date used to determine which employee data to search when records have specific start and end dates.  The service defaults to the current datetime if the requester does not specify a value.  Example: 2017-01-01T13:24:56",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "expand",
+            "in": "query",
+            "description": "This parameter accepts a comma-separated list of top-level entities that contain the data elements needed for downstream processing.  When this parameter is not used, only data elements from the employee master record will be included.  For more information, please refer to the Introduction to Dayforce Web Services document.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "clientNamespace",
+            "in": "path",
+            "description": "Uniquely identifies the client's Dayforce instance. Is needed to login.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The Employee with the requested XRefCode.",
+            "schema": {
+              "$ref": "#/definitions/Employee"
+            }
+          },
+          "400": {
+            "description": "Request is malformed.  Correct and resubmit.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ProcessResult"
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server error occurred.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ProcessResult"
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Employees"
+        ],
+        "summary": "PATCH (Update) an Employee",
+        "operationId": "Employees_Patch_By_employee_xRefCode_isValidateOnly_clientNamespace",
+        "consumes": [
+          "application/json",
+          "text/json",
+          "text/html"
+        ],
+        "produces": [
+          "application/json",
+          "text/json",
+          "text/html"
+        ],
+        "parameters": [
+          {
+            "name": "employee",
+            "in": "body",
+            "description": "The JSON-formatted content containing the data entities and elements to be processed in POST (hire and rehire ) and PATCH (employee update) operations.  For more information and examples, please refer to the Dayforce Web Services RESTful Developer's Guide.",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Employee"
+            }
+          },
+          {
+            "name": "xRefCode",
+            "in": "path",
+            "description": "The unique identifier (external reference code) of the employee to be retrieved.  The value provided must be the exact match for an employee; otherwise, a bad request (400) error will be returned.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "isValidateOnly",
+            "in": "query",
+            "description": "When a TRUE value is used in this parameter, POST (hire and rehire ) and PATCH (employee update) operations validate the request without applying updates to the database.",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "clientNamespace",
+            "in": "path",
+            "description": "Uniquely identifies the client's Dayforce instance. Is needed to login.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The Employee is updated, no response body."
+          },
+          "400": {
+            "description": "Request is malformed.  Correct and resubmit.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ProcessResult"
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server error occurred.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ProcessResult"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ClientMetadata": {
+      "type": "object",
+      "properties": {
+        "ServiceVersion": {
+          "type": "string"
+        },
+        "ServiceUri": {
+          "type": "string"
+        }
+      }
+    },
+    "ProcessResult": {
+      "type": "object",
+      "properties": {
+        "Code": {
+          "type": "string"
+        },
+        "Context": {
+          "type": "string"
+        },
+        "Level": {
+          "type": "string"
+        },
+        "Message": {
+          "type": "string"
+        }
+      }
+    },
+    "ArchiveDocument": {
+      "type": "object",
+      "properties": {
+        "DocumentType": {
+          "type": "string"
+        },
+        "DocumentGroup": {
+          "type": "string"
+        },
+        "UserId": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "SourceReportUniqueId": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "PublishDateTime": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "Title": {
+          "type": "string"
+        },
+        "PageCount": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "CultureId": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "Contents": {
+          "format": "byte",
+          "type": "string"
+        },
+        "FileName": {
+          "type": "string"
+        },
+        "SizeBytes": {
+          "format": "int64",
+          "type": "integer"
+        }
+      }
+    },
+    "EmployeeFileMetaData": {
+      "type": "object",
+      "properties": {
+        "DocumentGUID": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "DocumentName": {
+          "type": "string"
+        },
+        "DocumentType": {
+          "$ref": "#/definitions/DocumentTypeInfo"
+        },
+        "FileName": {
+          "type": "string"
+        },
+        "UploadedDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "UploadedBy": {
+          "$ref": "#/definitions/UserInfo"
+        }
+      }
+    },
+    "DocumentTypeInfo": {
+      "type": "object",
+      "properties": {
+        "ShortName": {
+          "type": "string"
+        },
+        "Description": {
+          "type": "string"
+        },
+        "XRefCode": {
+          "type": "string"
+        }
+      }
+    },
+    "UserInfo": {
+      "type": "object",
+      "properties": {
+        "DisplayName": {
+          "type": "string"
+        },
+        "XRefCode": {
+          "type": "string"
+        },
+        "LoginId": {
+          "type": "string"
+        }
+      }
+    },
+    "Employee": {
+      "type": "object",
+      "properties": {
+        "AvatarUri": {
+          "type": "string"
+        },
+        "BadgeNumber": {
+          "type": "string"
+        },
+        "BioExempt": {
+          "type": "boolean"
+        },
+        "BirthDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "ChecksumTimestamp": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "ClockSupervisor": {
+          "type": "boolean"
+        },
+        "COBRANotificationSentDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "COBRANotificationStatus": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "Culture": {
+          "$ref": "#/definitions/Culture"
+        },
+        "DateOfDeath": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EligibleForRehire": {
+          "type": "string"
+        },
+        "EmployeePin": {
+          "type": "string"
+        },
+        "EstimatedReturnDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "ExportDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "FederatedId": {
+          "type": "string"
+        },
+        "Gender": {
+          "type": "string"
+        },
+        "HireDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "HomePhone": {
+          "type": "string"
+        },
+        "IsAboriginal": {
+          "type": "string"
+        },
+        "IsVisibleMinority": {
+          "type": "string"
+        },
+        "LastPayrollNewHireExportDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "NewHireApprovalDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "NewHireApproved": {
+          "type": "boolean"
+        },
+        "NewHireApprovedBy": {
+          "type": "string"
+        },
+        "OriginalHireDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "PhotoExempt": {
+          "type": "boolean"
+        },
+        "PPACAOverrideDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "RegisteredDisabled": {
+          "type": "string"
+        },
+        "RequiresExitInterview": {
+          "type": "boolean"
+        },
+        "SeniorityDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "SocialSecurityNumber": {
+          "type": "string"
+        },
+        "SSNCountryCode": {
+          "type": "string"
+        },
+        "SSNExpiryDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "StartDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "TaxExempt": {
+          "type": "boolean"
+        },
+        "TaxpayerId": {
+          "type": "string"
+        },
+        "TerminationDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "VeteranSeparationDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "FirstTimeAccessEmailSentCount": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "FirstTimeAccessVerificationAttempts": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "SendFirstTimeAccessEmail": {
+          "type": "boolean"
+        },
+        "EmployeeBadge": {
+          "$ref": "#/definitions/EmployeeBadge"
+        },
+        "PreStartDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "PayrollKey": {
+          "type": "string"
+        },
+        "LoginId": {
+          "type": "string"
+        },
+        "HomeOrganization": {
+          "$ref": "#/definitions/Location"
+        },
+        "EmployeeNumber": {
+          "type": "string"
+        },
+        "EmploymentStatuses": {
+          "$ref": "#/definitions/EmployeeEmploymentStatusCollection"
+        },
+        "WorkAssignments": {
+          "$ref": "#/definitions/EmployeeWorkAssignmentCollection"
+        },
+        "Contacts": {
+          "$ref": "#/definitions/PersonContactCollection"
+        },
+        "Addresses": {
+          "$ref": "#/definitions/PersonAddressCollection"
+        },
+        "Roles": {
+          "$ref": "#/definitions/EmployeeRoleCollection"
+        },
+        "EmployeeManagers": {
+          "$ref": "#/definitions/EmployeeManagerCollection"
+        },
+        "EmployeeWorkAssignmentManagers": {
+          "$ref": "#/definitions/EmployeeWorkAssignmentManagerCollection"
+        },
+        "MaritalStatuses": {
+          "$ref": "#/definitions/EmployeeMaritalStatusCollection"
+        },
+        "Locations": {
+          "$ref": "#/definitions/EmployeeLocationCollection"
+        },
+        "BioSensitivityLevel": {
+          "$ref": "#/definitions/BioSensitivityLevel"
+        },
+        "CitizenshipType": {
+          "$ref": "#/definitions/CitizenshipType"
+        },
+        "SchoolYear": {
+          "$ref": "#/definitions/SchoolYear"
+        },
+        "HealthWellnessDetails": {
+          "$ref": "#/definitions/EmployeeHealthWellnessCollection"
+        },
+        "Courses": {
+          "$ref": "#/definitions/EmployeeCourseCollection"
+        },
+        "HRIncidents": {
+          "$ref": "#/definitions/EmployeeHRIncidentCollection"
+        },
+        "Skills": {
+          "$ref": "#/definitions/EmployeeSkillCollection"
+        },
+        "TrainingPrograms": {
+          "$ref": "#/definitions/EmployeeTrainingProgramCollection"
+        },
+        "UnionMemberships": {
+          "$ref": "#/definitions/EmployeeUnionCollection"
+        },
+        "EmploymentTypes": {
+          "$ref": "#/definitions/EmployeeEmploymentTypeCollection"
+        },
+        "HighlyCompensatedEmployees": {
+          "$ref": "#/definitions/HighlyCompensatedEmployeeCollection"
+        },
+        "PayGradeRates": {
+          "$ref": "#/definitions/EmployeePayGradeRateCollection"
+        },
+        "DirectDeposits": {
+          "$ref": "#/definitions/EmployeeDirectDepositCollection"
+        },
+        "CANFederalTaxes": {
+          "$ref": "#/definitions/EmployeeCANFederalTaxCollection"
+        },
+        "CANStateTaxes": {
+          "$ref": "#/definitions/EmployeeCANStateTaxCollection"
+        },
+        "USFederalTaxes": {
+          "$ref": "#/definitions/EmployeeUSFederalTaxCollection"
+        },
+        "USStateTaxes": {
+          "$ref": "#/definitions/EmployeeUSStateTaxCollection"
+        },
+        "EmergencyContacts": {
+          "$ref": "#/definitions/EmergencyContactCollection"
+        },
+        "Ethnicities": {
+          "$ref": "#/definitions/EmployeeEthnicityCollection"
+        },
+        "VeteranStatuses": {
+          "$ref": "#/definitions/EmployeeVeteransStatusCollection"
+        },
+        "EmployeeProperties": {
+          "$ref": "#/definitions/EmployeePropertyValueCollection"
+        },
+        "LaborDefaults": {
+          "$ref": "#/definitions/EmployeeDefaultLaborCollection"
+        },
+        "DocumentManagementSecurityGroups": {
+          "$ref": "#/definitions/DocMgmtSecurityGroupUserMapCollection"
+        },
+        "EmployeeClockDeviceGroups": {
+          "$ref": "#/definitions/EmployeeClockDeviceGroupCollection"
+        },
+        "EmployeePayAdjustCodeGroups": {
+          "$ref": "#/definitions/EmployeePayAdjCodeGroupListCollection"
+        },
+        "UserPayAdjustCodeGroups": {
+          "$ref": "#/definitions/UserPayAdjCodeGroupCollection"
+        },
+        "WorkContracts": {
+          "$ref": "#/definitions/EmployeeWorkContractCollection"
+        },
+        "PerformanceRatings": {
+          "$ref": "#/definitions/EmployeePerformanceRatingCollection"
+        },
+        "EIRates": {
+          "$ref": "#/definitions/EmployeeEIRateCollection"
+        },
+        "USTaxStatuses": {
+          "$ref": "#/definitions/EmployeeUSTaxStatusCollection"
+        },
+        "CANTaxStatuses": {
+          "$ref": "#/definitions/EmployeeCANTaxStatusCollection"
+        },
+        "OrgUnitInfos": {
+          "$ref": "#/definitions/EmployeeOrgUnitInfoCollection"
+        },
+        "ManagedEmployees": {
+          "$ref": "#/definitions/EmployeeWorkAssignmentManagerCollection"
+        },
+        "EmployeeConfidentialIdentification": {
+          "$ref": "#/definitions/EmployeeConfidentialIdentificationCollection"
+        },
+        "XRefCode": {
+          "type": "string"
+        },
+        "CommonName": {
+          "type": "string"
+        },
+        "DisplayName": {
+          "type": "string"
+        },
+        "FirstName": {
+          "type": "string"
+        },
+        "LastName": {
+          "type": "string"
+        },
+        "Initials": {
+          "type": "string"
+        },
+        "MaidenName": {
+          "type": "string"
+        },
+        "MiddleName": {
+          "type": "string"
+        },
+        "PreferredLastName": {
+          "type": "string"
+        },
+        "SecondLastName": {
+          "type": "string"
+        },
+        "Suffix": {
+          "type": "string"
+        },
+        "Title": {
+          "type": "string"
+        }
+      }
+    },
+    "Culture": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "EmployeeBadge": {
+      "type": "object",
+      "properties": {
+        "BadgeNumber": {
+          "type": "string"
+        },
+        "EffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        }
+      }
+    },
+    "Location": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "EmployeeEmploymentStatusCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeEmploymentStatus"
+          }
+        }
+      }
+    },
+    "EmployeeWorkAssignmentCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeWorkAssignment"
+          }
+        }
+      }
+    },
+    "PersonContactCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PersonContact"
+          }
+        }
+      }
+    },
+    "PersonAddressCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PersonAddress"
+          }
+        }
+      }
+    },
+    "EmployeeRoleCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeRole"
+          }
+        }
+      }
+    },
+    "EmployeeManagerCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeManager"
+          }
+        }
+      }
+    },
+    "EmployeeWorkAssignmentManagerCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeWorkAssignmentManager"
+          }
+        }
+      }
+    },
+    "EmployeeMaritalStatusCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeMaritalStatus"
+          }
+        }
+      }
+    },
+    "EmployeeLocationCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeLocation"
+          }
+        }
+      }
+    },
+    "BioSensitivityLevel": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "CitizenshipType": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "SchoolYear": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "EmployeeHealthWellnessCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeHealthWellness"
+          }
+        }
+      }
+    },
+    "EmployeeCourseCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeCourse"
+          }
+        }
+      }
+    },
+    "EmployeeHRIncidentCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeHRIncident"
+          }
+        }
+      }
+    },
+    "EmployeeSkillCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeSkill"
+          }
+        }
+      }
+    },
+    "EmployeeTrainingProgramCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeTrainingProgram"
+          }
+        }
+      }
+    },
+    "EmployeeUnionCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeUnion"
+          }
+        }
+      }
+    },
+    "EmployeeEmploymentTypeCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeEmploymentType"
+          }
+        }
+      }
+    },
+    "HighlyCompensatedEmployeeCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/HighlyCompensatedEmployee"
+          }
+        }
+      }
+    },
+    "EmployeePayGradeRateCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeePayGradeRate"
+          }
+        }
+      }
+    },
+    "EmployeeDirectDepositCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeDirectDeposit"
+          }
+        }
+      }
+    },
+    "EmployeeCANFederalTaxCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeCANFederalTax"
+          }
+        }
+      }
+    },
+    "EmployeeCANStateTaxCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeCANStateTax"
+          }
+        }
+      }
+    },
+    "EmployeeUSFederalTaxCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeUSFederalTax"
+          }
+        }
+      }
+    },
+    "EmployeeUSStateTaxCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeUSStateTax"
+          }
+        }
+      }
+    },
+    "EmergencyContactCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmergencyContact"
+          }
+        }
+      }
+    },
+    "EmployeeEthnicityCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeEthnicity"
+          }
+        }
+      }
+    },
+    "EmployeeVeteransStatusCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeVeteransStatus"
+          }
+        }
+      }
+    },
+    "EmployeePropertyValueCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeePropertyValue"
+          }
+        }
+      }
+    },
+    "EmployeeDefaultLaborCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeDefaultLabor"
+          }
+        }
+      }
+    },
+    "DocMgmtSecurityGroupUserMapCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DocMgmtSecurityGroupUserMap"
+          }
+        }
+      }
+    },
+    "EmployeeClockDeviceGroupCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeClockDeviceGroup"
+          }
+        }
+      }
+    },
+    "EmployeePayAdjCodeGroupListCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeePayAdjCodeGroupList"
+          }
+        }
+      }
+    },
+    "UserPayAdjCodeGroupCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UserPayAdjCodeGroup"
+          }
+        }
+      }
+    },
+    "EmployeeWorkContractCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeWorkContract"
+          }
+        }
+      }
+    },
+    "EmployeePerformanceRatingCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeePerformanceRating"
+          }
+        }
+      }
+    },
+    "EmployeeEIRateCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeEIRate"
+          }
+        }
+      }
+    },
+    "EmployeeUSTaxStatusCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeUSTaxStatus"
+          }
+        }
+      }
+    },
+    "EmployeeCANTaxStatusCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeCANTaxStatus"
+          }
+        }
+      }
+    },
+    "EmployeeOrgUnitInfoCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeOrgUnitInfo"
+          }
+        }
+      }
+    },
+    "EmployeeConfidentialIdentificationCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeConfidentialIdentification"
+          }
+        }
+      }
+    },
+    "EmployeeEmploymentStatus": {
+      "type": "object",
+      "properties": {
+        "EmployeeNumber": {
+          "type": "string"
+        },
+        "EffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EmploymentStatus": {
+          "$ref": "#/definitions/EmploymentStatus"
+        },
+        "EmploymentStatusGroup": {
+          "$ref": "#/definitions/EmploymentStatusGroup"
+        },
+        "PayType": {
+          "$ref": "#/definitions/PayType"
+        },
+        "PayGroup": {
+          "$ref": "#/definitions/PayGroup"
+        },
+        "PayTypeGroup": {
+          "$ref": "#/definitions/PayTypeGroup"
+        },
+        "PayClass": {
+          "$ref": "#/definitions/PayClass"
+        },
+        "PunchPolicy": {
+          "$ref": "#/definitions/PunchPolicy"
+        },
+        "PayPolicy": {
+          "$ref": "#/definitions/PayPolicy"
+        },
+        "PayHolidayGroup": {
+          "$ref": "#/definitions/PayHolidayGroup"
+        },
+        "EmployeeGroup": {
+          "$ref": "#/definitions/EmployeeGroup"
+        },
+        "EntitlementPolicy": {
+          "$ref": "#/definitions/EntitlementPolicy"
+        },
+        "ShiftRotation": {
+          "$ref": "#/definitions/ShiftRotation"
+        },
+        "ShiftRotationDayOffset": {
+          "format": "int64",
+          "type": "integer"
+        },
+        "ShiftRotationStartDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "CreateShiftRotationShift": {
+          "type": "boolean"
+        },
+        "TimeOffPolicy": {
+          "$ref": "#/definitions/TimeOffPolicy"
+        },
+        "ShiftTradePolicy": {
+          "$ref": "#/definitions/ShiftTradePolicy"
+        },
+        "AttendancePolicy": {
+          "$ref": "#/definitions/AttendancePolicy"
+        },
+        "SchedulePolicy": {
+          "$ref": "#/definitions/EmployeeSchedulePolicy"
+        },
+        "OvertimeGroup": {
+          "$ref": "#/definitions/EmployeeOvertimeGroup"
+        },
+        "PayrollPolicy": {
+          "$ref": "#/definitions/PayrollPolicy"
+        },
+        "JobStepPolicy": {
+          "$ref": "#/definitions/JobStepPolicy"
+        },
+        "AlternateRate": {
+          "format": "double",
+          "type": "number"
+        },
+        "AverageDailyHours": {
+          "format": "double",
+          "type": "number"
+        },
+        "AverageOvertimeRate": {
+          "format": "double",
+          "type": "number"
+        },
+        "BaseRate": {
+          "format": "double",
+          "type": "number"
+        },
+        "BaseRateManuallySet": {
+          "type": "boolean"
+        },
+        "BaseSalary": {
+          "format": "double",
+          "type": "number"
+        },
+        "PeriodicSalary": {
+          "format": "double",
+          "type": "number"
+        },
+        "DailyRate": {
+          "format": "double",
+          "type": "number"
+        },
+        "EmploymentStatusReason": {
+          "$ref": "#/definitions/EmploymentStatusReason"
+        },
+        "NormalWeeklyHours": {
+          "format": "double",
+          "type": "number"
+        },
+        "NormalSemiMonthlyHoursTop": {
+          "format": "double",
+          "type": "number"
+        },
+        "NormalSemiMonthlyHoursBottom": {
+          "format": "double",
+          "type": "number"
+        },
+        "ScheduleChangePolicy": {
+          "$ref": "#/definitions/ScheduleChangePolicy"
+        },
+        "AuthorizationPolicy": {
+          "$ref": "#/definitions/AuthorizationPolicy"
+        },
+        "WorkContractPremiumPolicy": {
+          "$ref": "#/definitions/WorkContractPremiumPolicy"
+        },
+        "LastPayEditDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "VacationRate": {
+          "format": "double",
+          "type": "number"
+        }
+      }
+    },
+    "EmployeeWorkAssignment": {
+      "type": "object",
+      "properties": {
+        "Position": {
+          "$ref": "#/definitions/Position"
+        },
+        "Location": {
+          "$ref": "#/definitions/Location"
+        },
+        "EmploymentIndicator": {
+          "$ref": "#/definitions/EmploymentIndicator"
+        },
+        "EmploymentStatusReason": {
+          "$ref": "#/definitions/EmploymentStatusReason"
+        },
+        "EffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "FlatAmount": {
+          "format": "double",
+          "type": "number"
+        },
+        "FTE": {
+          "format": "double",
+          "type": "number"
+        },
+        "IsPAPrimaryWorkSite": {
+          "type": "boolean"
+        },
+        "IsPrimary": {
+          "type": "boolean"
+        },
+        "IsStatutory": {
+          "type": "boolean"
+        },
+        "IsVirtual": {
+          "type": "boolean"
+        },
+        "BusinessTitle": {
+          "type": "string"
+        },
+        "JobSetLevel": {
+          "$ref": "#/definitions/JobSetLevel"
+        },
+        "LaborPercentage": {
+          "format": "double",
+          "type": "number"
+        },
+        "LastModifiedTimeStamp": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "MultiJSalaryAllocationPercent": {
+          "format": "double",
+          "type": "number"
+        },
+        "ParticipateInReciprocalTaxCalculation": {
+          "type": "boolean"
+        },
+        "PositionTerm": {
+          "$ref": "#/definitions/PositionTerm"
+        },
+        "PRBankAccountBranchAddress": {
+          "$ref": "#/definitions/BankAccountBranchAddress"
+        },
+        "WorkLocationOverride": {
+          "$ref": "#/definitions/WorkLocationOverride"
+        },
+        "Rank": {
+          "format": "int64",
+          "type": "integer"
+        },
+        "JobRate": {
+          "format": "double",
+          "type": "number"
+        },
+        "TipTypeGroup": {
+          "$ref": "#/definitions/TipTypeGroup"
+        },
+        "LedgerCode": {
+          "type": "string"
+        }
+      }
+    },
+    "PersonContact": {
+      "type": "object",
+      "properties": {
+        "ContactInformationType": {
+          "$ref": "#/definitions/ContactInformationType"
+        },
+        "ContactNumber": {
+          "type": "string"
+        },
+        "Country": {
+          "$ref": "#/definitions/Country"
+        },
+        "EffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "ElectronicAddress": {
+          "type": "string"
+        },
+        "Extension": {
+          "type": "string"
+        },
+        "IsForSystemCommunications": {
+          "type": "boolean"
+        },
+        "IsPreferredContactMethod": {
+          "type": "boolean"
+        },
+        "IsUnlistedNumber": {
+          "type": "boolean"
+        },
+        "FormattedNumber": {
+          "type": "string"
+        },
+        "IsVerified": {
+          "type": "boolean"
+        },
+        "IsRejected": {
+          "type": "boolean"
+        },
+        "ShowRejectedWarning": {
+          "type": "boolean"
+        },
+        "NumberOfVerificationRequests": {
+          "format": "int32",
+          "type": "integer"
+        }
+      }
+    },
+    "PersonAddress": {
+      "type": "object",
+      "properties": {
+        "Address1": {
+          "type": "string"
+        },
+        "Address2": {
+          "type": "string"
+        },
+        "Address3": {
+          "type": "string"
+        },
+        "Address4": {
+          "type": "string"
+        },
+        "Address5": {
+          "type": "string"
+        },
+        "Address6": {
+          "type": "string"
+        },
+        "City": {
+          "type": "string"
+        },
+        "PostalCode": {
+          "type": "string"
+        },
+        "Country": {
+          "$ref": "#/definitions/Country"
+        },
+        "State": {
+          "$ref": "#/definitions/State"
+        },
+        "ContactInformationType": {
+          "$ref": "#/definitions/ContactInformationType"
+        },
+        "IsPayrollMailing": {
+          "type": "boolean"
+        },
+        "EffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "County": {
+          "type": "string"
+        }
+      }
+    },
+    "EmployeeRole": {
+      "type": "object",
+      "properties": {
+        "IsDefault": {
+          "type": "boolean"
+        },
+        "Role": {
+          "$ref": "#/definitions/Role"
+        },
+        "EffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "IsPrestartRole": {
+          "type": "boolean"
+        },
+        "EffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        }
+      }
+    },
+    "EmployeeManager": {
+      "type": "object",
+      "properties": {
+        "EffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "ManagerXRefCode": {
+          "type": "string"
+        },
+        "DerivationMethod": {
+          "format": "int32",
+          "type": "integer"
+        }
+      }
+    },
+    "EmployeeWorkAssignmentManager": {
+      "type": "object",
+      "properties": {
+        "EffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "TerminationDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EmploymentStatusGroupXRefCode": {
+          "type": "string"
+        },
+        "ManagerXRefCode": {
+          "type": "string"
+        },
+        "ManagerName": {
+          "type": "string"
+        },
+        "ActiveEmployeePosition": {
+          "$ref": "#/definitions/Position"
+        },
+        "ActiveEmployeeLocation": {
+          "$ref": "#/definitions/Location"
+        }
+      }
+    },
+    "EmployeeMaritalStatus": {
+      "type": "object",
+      "properties": {
+        "MaritalStatus": {
+          "$ref": "#/definitions/MaritalStatus"
+        },
+        "EffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        }
+      }
+    },
+    "EmployeeLocation": {
+      "type": "object",
+      "properties": {
+        "IsPrimary": {
+          "type": "boolean"
+        },
+        "Location": {
+          "$ref": "#/definitions/Location"
+        },
+        "EffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "IsDefault": {
+          "type": "boolean"
+        },
+        "EmployeeLocationAuthorities": {
+          "$ref": "#/definitions/EmployeeLocationAuthorityCollection"
+        }
+      }
+    },
+    "EmployeeHealthWellness": {
+      "type": "object",
+      "properties": {
+        "TobaccoUser": {
+          "type": "string"
+        },
+        "DateLastSmoked": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        }
+      }
+    },
+    "EmployeeCourse": {
+      "type": "object",
+      "properties": {
+        "StartDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "CompletionDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "CertificationExpiryDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "Course": {
+          "$ref": "#/definitions/Course"
+        },
+        "EmployeeTrainingProgram": {
+          "$ref": "#/definitions/EmployeeTrainingProgram"
+        },
+        "CertificationNumber": {
+          "type": "string"
+        },
+        "Comment": {
+          "type": "string"
+        },
+        "Score": {
+          "type": "string"
+        },
+        "PassFail": {
+          "type": "string"
+        }
+      }
+    },
+    "EmployeeHRIncident": {
+      "type": "object",
+      "properties": {
+        "HRIncidentNotes": {
+          "$ref": "#/definitions/EmployeeHRIncidentNoteCollection"
+        },
+        "OrgUnit": {
+          "$ref": "#/definitions/OrgUnitDetailConfiguration"
+        },
+        "HRIncidentState": {
+          "type": "string"
+        },
+        "OpenDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "HRIncidentAction": {
+          "$ref": "#/definitions/HRIncidentAction"
+        },
+        "HRIncidentType": {
+          "$ref": "#/definitions/HRIncidentType"
+        },
+        "ClosedDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "HRIncidentDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "HRIncidentBeganWork": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "HRIncidentEventTime": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "SafetyHealthType": {
+          "$ref": "#/definitions/SafetyHealthType"
+        },
+        "HRIncidentInjury": {
+          "$ref": "#/definitions/HRIncidentInjury"
+        },
+        "HRIncidentBodyPart": {
+          "$ref": "#/definitions/HRIncidentBodyPart"
+        },
+        "Died": {
+          "type": "boolean"
+        },
+        "HRIncidentArea": {
+          "type": "string"
+        },
+        "TaskBeingPerformed": {
+          "type": "string"
+        },
+        "CausedObject": {
+          "type": "string"
+        },
+        "CausedAction": {
+          "type": "string"
+        },
+        "PrivacyCase": {
+          "type": "boolean"
+        },
+        "DoctorName": {
+          "type": "string"
+        },
+        "EmergencyRoom": {
+          "type": "boolean"
+        },
+        "HospitalOvernight": {
+          "type": "boolean"
+        },
+        "Hospital": {
+          "type": "string"
+        },
+        "HospitalStreet": {
+          "type": "string"
+        },
+        "HospitalCity": {
+          "type": "string"
+        },
+        "HospitalStateCode": {
+          "type": "string"
+        },
+        "HospitalZip": {
+          "type": "string"
+        },
+        "DateReturnToWork": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "DaysLost": {
+          "format": "double",
+          "type": "number"
+        },
+        "DaysRestricted": {
+          "format": "double",
+          "type": "number"
+        },
+        "DateDied": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "QuestionableClaim": {
+          "type": "boolean"
+        },
+        "IsDaysLost": {
+          "type": "boolean"
+        },
+        "WCBCaseNumber": {
+          "type": "string"
+        }
+      }
+    },
+    "EmployeeSkill": {
+      "type": "object",
+      "properties": {
+        "Skill": {
+          "$ref": "#/definitions/Skill"
+        },
+        "SkillLevel": {
+          "$ref": "#/definitions/SkillLevel"
+        },
+        "EffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        }
+      }
+    },
+    "EmployeeTrainingProgram": {
+      "type": "object",
+      "properties": {
+        "TrainingProgram": {
+          "$ref": "#/definitions/TrainingProgram"
+        },
+        "EnrollmentDate": {
+          "format": "date-time",
+          "type": "string"
+        }
+      }
+    },
+    "EmployeeUnion": {
+      "type": "object",
+      "properties": {
+        "UnionMembershipDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "Union": {
+          "$ref": "#/definitions/DFUnion"
+        },
+        "EffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        }
+      }
+    },
+    "EmployeeEmploymentType": {
+      "type": "object",
+      "properties": {
+        "EffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EmploymentType": {
+          "$ref": "#/definitions/EmploymentTypeConfig"
+        },
+        "TaxPayerId": {
+          "type": "string"
+        }
+      }
+    },
+    "HighlyCompensatedEmployee": {
+      "type": "object",
+      "properties": {
+        "EffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "IsHCE": {
+          "type": "boolean"
+        }
+      }
+    },
+    "EmployeePayGradeRate": {
+      "type": "object",
+      "properties": {
+        "EffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "WorkAssignmentEffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "WorkAssignmentEffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "PayGrade": {
+          "$ref": "#/definitions/PayGrade"
+        },
+        "MinimumRate": {
+          "format": "double",
+          "type": "number"
+        },
+        "ControlRate": {
+          "format": "double",
+          "type": "number"
+        },
+        "MaximumRate": {
+          "format": "double",
+          "type": "number"
+        },
+        "RateMidPoint": {
+          "format": "double",
+          "type": "number"
+        },
+        "MinimumSalary": {
+          "format": "double",
+          "type": "number"
+        },
+        "ControlSalary": {
+          "format": "double",
+          "type": "number"
+        },
+        "MaximumSalary": {
+          "format": "double",
+          "type": "number"
+        },
+        "SalaryMidPoint": {
+          "format": "double",
+          "type": "number"
+        }
+      }
+    },
+    "EmployeeDirectDeposit": {
+      "type": "object",
+      "properties": {
+        "AccountNumber": {
+          "type": "string"
+        },
+        "BankName": {
+          "type": "string"
+        },
+        "BankNumber": {
+          "type": "string"
+        },
+        "BuildingSocietyNumber": {
+          "type": "string"
+        },
+        "DepositNumber": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "DepositValue": {
+          "format": "double",
+          "type": "number"
+        },
+        "PayMethod": {
+          "$ref": "#/definitions/PayMethod"
+        },
+        "IsDeleted": {
+          "type": "boolean"
+        },
+        "IsPercentage": {
+          "type": "boolean"
+        },
+        "IsRemainder": {
+          "type": "boolean"
+        },
+        "NumberOfPreNoteDays": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "PrenoteFileRunPayDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "PrenoteFileSentOn": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "RequiresPreNote": {
+          "type": "boolean"
+        },
+        "RoutingTransitNumber": {
+          "type": "string"
+        },
+        "PayCardType": {
+          "type": "string"
+        },
+        "FinancialInstitution": {
+          "$ref": "#/definitions/FinancialInstitution"
+        }
+      }
+    },
+    "EmployeeCANFederalTax": {
+      "type": "object",
+      "properties": {
+        "EffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "TotalClaimAmount": {
+          "format": "double",
+          "type": "number"
+        },
+        "IsNonResident": {
+          "type": "boolean"
+        },
+        "MultipleEmployer": {
+          "type": "boolean"
+        },
+        "IncomeLessThanClaim": {
+          "type": "boolean"
+        },
+        "DistrictTaxDeduction": {
+          "format": "double",
+          "type": "number"
+        },
+        "AuthorizedTaxCredits": {
+          "format": "double",
+          "type": "number"
+        },
+        "EstimatedExpense": {
+          "format": "double",
+          "type": "number"
+        },
+        "EstimatedRemuneration": {
+          "format": "double",
+          "type": "number"
+        },
+        "AdditionalAmount": {
+          "format": "double",
+          "type": "number"
+        },
+        "PrescribedAreaDeduction": {
+          "format": "double",
+          "type": "number"
+        }
+      }
+    },
+    "EmployeeCANStateTax": {
+      "type": "object",
+      "properties": {
+        "EffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "State": {
+          "$ref": "#/definitions/State"
+        },
+        "TotalClaimAmount": {
+          "format": "double",
+          "type": "number"
+        },
+        "PrescribedAreaDeduction": {
+          "format": "double",
+          "type": "number"
+        },
+        "MaintenanceDeduction": {
+          "format": "double",
+          "type": "number"
+        },
+        "AuthorizedTaxCredits": {
+          "format": "double",
+          "type": "number"
+        },
+        "QuebecDevelopmentFunds": {
+          "format": "double",
+          "type": "number"
+        },
+        "EstimatedExpense": {
+          "format": "double",
+          "type": "number"
+        },
+        "EstimatedRemuneration": {
+          "format": "double",
+          "type": "number"
+        },
+        "AdditionalAmount": {
+          "format": "double",
+          "type": "number"
+        },
+        "LabourSponsoredFunds": {
+          "format": "double",
+          "type": "number"
+        },
+        "HasQuebecHealthContributionExemption": {
+          "type": "boolean"
+        },
+        "IncomeLessThanClaim": {
+          "type": "boolean"
+        }
+      }
+    },
+    "EmployeeUSFederalTax": {
+      "type": "object",
+      "properties": {
+        "EffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "FilingStatus": {
+          "$ref": "#/definitions/FederalFilingStatus"
+        },
+        "Allowances": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "AdditionalAmount": {
+          "format": "double",
+          "type": "number"
+        },
+        "IsTaxExempt": {
+          "type": "boolean"
+        },
+        "IsLocked": {
+          "type": "boolean"
+        }
+      }
+    },
+    "EmployeeUSStateTax": {
+      "type": "object",
+      "properties": {
+        "EffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "State": {
+          "$ref": "#/definitions/State"
+        },
+        "FilingStatus": {
+          "$ref": "#/definitions/StateFilingStatus"
+        },
+        "Allowances": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "AdditionalAmount": {
+          "format": "double",
+          "type": "number"
+        },
+        "DependentAllowances": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "PersonalAllowances": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "AdditionalAllowances": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "IsTaxExempt": {
+          "type": "boolean"
+        },
+        "AlternateCalculationCode": {
+          "type": "string"
+        },
+        "ExemptionAmount": {
+          "format": "double",
+          "type": "number"
+        },
+        "IsLocked": {
+          "type": "boolean"
+        }
+      }
+    },
+    "EmergencyContact": {
+      "type": "object",
+      "properties": {
+        "FirstName": {
+          "type": "string"
+        },
+        "LastName": {
+          "type": "string"
+        },
+        "MiddleName": {
+          "type": "string"
+        },
+        "Comment": {
+          "type": "string"
+        },
+        "IsPrimary": {
+          "type": "boolean"
+        },
+        "Relationship": {
+          "$ref": "#/definitions/RelationshipType"
+        },
+        "Addresses": {
+          "$ref": "#/definitions/EmergencyContactPersonAddressCollection"
+        },
+        "Contacts": {
+          "$ref": "#/definitions/EmergencyContactPersonContactCollection"
+        }
+      }
+    },
+    "EmployeeEthnicity": {
+      "type": "object",
+      "properties": {
+        "EffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "Ethnicity": {
+          "$ref": "#/definitions/DFEthnicity"
+        },
+        "ManagerEthnicity": {
+          "$ref": "#/definitions/DFEthnicity"
+        }
+      }
+    },
+    "EmployeeVeteransStatus": {
+      "type": "object",
+      "properties": {
+        "EffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "IsVevraa": {
+          "type": "boolean"
+        },
+        "VeteransStatus": {
+          "$ref": "#/definitions/DFVeteransStatus"
+        }
+      }
+    },
+    "EmployeePropertyValue": {
+      "type": "object",
+      "properties": {
+        "PreviousEffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EmployeeProperty": {
+          "$ref": "#/definitions/EmployeeProperty"
+        },
+        "EmployeePropertyRole": {
+          "$ref": "#/definitions/EmployeePropertyRole"
+        },
+        "BitValue": {
+          "type": "boolean"
+        },
+        "NumberValue": {
+          "format": "double",
+          "type": "number"
+        },
+        "OptionValue": {
+          "$ref": "#/definitions/EmployeePropertyOption"
+        },
+        "StringValue": {
+          "type": "string"
+        },
+        "DateTimeValue": {
+          "format": "date-time",
+          "type": "string"
+        }
+      }
+    },
+    "EmployeeDefaultLabor": {
+      "type": "object",
+      "properties": {
+        "Position": {
+          "$ref": "#/definitions/Position"
+        },
+        "EffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "Location": {
+          "$ref": "#/definitions/Location"
+        },
+        "PayAdjCode": {
+          "$ref": "#/definitions/PayAdjCode"
+        },
+        "Project": {
+          "$ref": "#/definitions/Project"
+        },
+        "Docket": {
+          "$ref": "#/definitions/Docket"
+        }
+      }
+    },
+    "DocMgmtSecurityGroupUserMap": {
+      "type": "object",
+      "properties": {
+        "DocMgmtSecurityGroup": {
+          "$ref": "#/definitions/DocMgmtSecurityGroup"
+        }
+      }
+    },
+    "EmployeeClockDeviceGroup": {
+      "type": "object",
+      "properties": {
+        "EmployeeId": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "ClockDeviceGroup": {
+          "$ref": "#/definitions/ClockDeviceGroup"
+        },
+        "LastModifiedUser": {
+          "$ref": "#/definitions/AppUser"
+        }
+      }
+    },
+    "EmployeePayAdjCodeGroupList": {
+      "type": "object",
+      "properties": {
+        "PayAdjCodeGroup": {
+          "$ref": "#/definitions/PayAdjCodeGroup"
+        }
+      }
+    },
+    "UserPayAdjCodeGroup": {
+      "type": "object",
+      "properties": {
+        "PayAdjCodeGroup": {
+          "$ref": "#/definitions/PayAdjCodeGroup"
+        }
+      }
+    },
+    "EmployeeWorkContract": {
+      "type": "object",
+      "properties": {
+        "AverageNumOfDays": {
+          "format": "double",
+          "type": "number"
+        },
+        "BaseHours": {
+          "format": "double",
+          "type": "number"
+        },
+        "BaseComplementaryHours": {
+          "format": "double",
+          "type": "number"
+        },
+        "ContractWorkPercent": {
+          "format": "double",
+          "type": "number"
+        },
+        "CreateShiftOnHolidays": {
+          "type": "boolean"
+        },
+        "EndDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "FullTimeHours": {
+          "format": "double",
+          "type": "number"
+        },
+        "StartDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "WorkContract": {
+          "$ref": "#/definitions/WorkContract"
+        },
+        "WorkPatternLengthDays": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "WorkPatterns": {
+          "$ref": "#/definitions/EmployeeWorkPatternCollection"
+        }
+      }
+    },
+    "EmployeePerformanceRating": {
+      "type": "object",
+      "properties": {
+        "Comments": {
+          "type": "string"
+        },
+        "NextReviewDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "PerformanceCycle": {
+          "$ref": "#/definitions/PerformanceCycle"
+        },
+        "PerformanceRating": {
+          "$ref": "#/definitions/PerformanceRating"
+        },
+        "RatingScore": {
+          "format": "double",
+          "type": "number"
+        },
+        "ReviewDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "Reviewer": {
+          "$ref": "#/definitions/BaseEmployee"
+        }
+      }
+    },
+    "EmployeeEIRate": {
+      "type": "object",
+      "properties": {
+        "EffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "LegalEntity": {
+          "$ref": "#/definitions/LegalEntity"
+        },
+        "RateGroup": {
+          "type": "string"
+        }
+      }
+    },
+    "EmployeeUSTaxStatus": {
+      "type": "object",
+      "properties": {
+        "StateCode": {
+          "type": "string"
+        },
+        "EffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "TaxPropertyCollection": {
+          "$ref": "#/definitions/TaxPropertyCollection"
+        }
+      }
+    },
+    "EmployeeCANTaxStatus": {
+      "type": "object",
+      "properties": {
+        "ProvinceCode": {
+          "type": "string"
+        },
+        "EffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "TaxPropertyCollection": {
+          "$ref": "#/definitions/TaxPropertyCollection"
+        }
+      }
+    },
+    "EmployeeOrgUnitInfo": {
+      "type": "object",
+      "properties": {
+        "OrgUnitDetail": {
+          "$ref": "#/definitions/OrgUnitDetailConfiguration"
+        },
+        "Department": {
+          "$ref": "#/definitions/Department"
+        }
+      }
+    },
+    "EmployeeConfidentialIdentification": {
+      "type": "object",
+      "properties": {
+        "EffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "ConfidentialIdentificationType": {
+          "$ref": "#/definitions/ConfidentialIdentificationType"
+        },
+        "CountryCode": {
+          "type": "string"
+        },
+        "ExpiryDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "IDNumber": {
+          "type": "string"
+        },
+        "PlaceOfIssue": {
+          "type": "string"
+        },
+        "IssueDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EmployeeDocumentIdentificationCollection": {
+          "$ref": "#/definitions/EmployeeConfidentialIdentificationDocumentCollection"
+        }
+      }
+    },
+    "EmploymentStatus": {
+      "type": "object",
+      "properties": {
+        "IsBenefitArrearsEnabled": {
+          "type": "boolean"
+        },
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "EmploymentStatusGroup": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "PayType": {
+      "type": "object",
+      "properties": {
+        "PayTypeGroup": {
+          "$ref": "#/definitions/PayTypeGroup"
+        },
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "PayGroup": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "PayTypeGroup": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "PayClass": {
+      "type": "object",
+      "properties": {
+        "SortOrder": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "DefaultNormalWeeklyHours": {
+          "format": "double",
+          "type": "number"
+        },
+        "LedgerCode": {
+          "type": "string"
+        },
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "PunchPolicy": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "PayPolicy": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "PayHolidayGroup": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "EmployeeGroup": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "EntitlementPolicy": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "ShiftRotation": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "TimeOffPolicy": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "ShiftTradePolicy": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "AttendancePolicy": {
+      "type": "object",
+      "properties": {
+        "TrackingBasedOn": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "EmployeeSchedulePolicy": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "EmployeeOvertimeGroup": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "PayrollPolicy": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "JobStepPolicy": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "EmploymentStatusReason": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "ScheduleChangePolicy": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "AuthorizationPolicy": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "WorkContractPremiumPolicy": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "Position": {
+      "type": "object",
+      "properties": {
+        "Department": {
+          "$ref": "#/definitions/Department"
+        },
+        "Job": {
+          "$ref": "#/definitions/Job"
+        },
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "EmploymentIndicator": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "JobSetLevel": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "PositionTerm": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "BankAccountBranchAddress": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "WorkLocationOverride": {
+      "type": "object",
+      "properties": {
+        "County": {
+          "type": "string"
+        },
+        "Description": {
+          "type": "string"
+        },
+        "LocationName": {
+          "type": "string"
+        },
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "TipTypeGroup": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "ContactInformationType": {
+      "type": "object",
+      "properties": {
+        "ContactInformationTypeGroup": {
+          "$ref": "#/definitions/ContactInformationTypeGroup"
+        },
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "Country": {
+      "type": "object",
+      "properties": {
+        "Name": {
+          "type": "string"
+        },
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "State": {
+      "type": "object",
+      "properties": {
+        "Name": {
+          "type": "string"
+        },
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "Role": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "MaritalStatus": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "EmployeeLocationAuthorityCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeLocationAuthority"
+          }
+        }
+      }
+    },
+    "Course": {
+      "type": "object",
+      "properties": {
+        "CourseCode": {
+          "type": "string"
+        },
+        "CourseType": {
+          "$ref": "#/definitions/CourseType"
+        },
+        "CourseProvider": {
+          "$ref": "#/definitions/CourseProvider"
+        },
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "EmployeeHRIncidentNoteCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeHRIncidentNote"
+          }
+        }
+      }
+    },
+    "OrgUnitDetailConfiguration": {
+      "type": "object",
+      "properties": {
+        "EffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "Address": {
+          "$ref": "#/definitions/Address"
+        },
+        "ChildSortOrder": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "IsPhysicalLocation": {
+          "type": "boolean"
+        },
+        "IsPrimary": {
+          "type": "boolean"
+        },
+        "LedgerCode": {
+          "type": "string"
+        },
+        "ParentSortOrder": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "OrgLevel": {
+          "$ref": "#/definitions/OrgLevel"
+        },
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "HRIncidentAction": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "HRIncidentType": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "SafetyHealthType": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "HRIncidentInjury": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "HRIncidentBodyPart": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "Skill": {
+      "type": "object",
+      "properties": {
+        "SkillType": {
+          "$ref": "#/definitions/SkillType"
+        },
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "SkillLevel": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "TrainingProgram": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "DFUnion": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "EmploymentTypeConfig": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "PayGrade": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "PayMethod": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "FinancialInstitution": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "FederalFilingStatus": {
+      "type": "object",
+      "properties": {
+        "CountryCode": {
+          "type": "string"
+        },
+        "FederalFilingStatusCode": {
+          "type": "string"
+        },
+        "CalculationCode": {
+          "type": "string"
+        },
+        "PayrollOutput": {
+          "type": "string"
+        },
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "StateFilingStatus": {
+      "type": "object",
+      "properties": {
+        "CountryCode": {
+          "type": "string"
+        },
+        "StateCode": {
+          "type": "string"
+        },
+        "StateFilingStatusCode": {
+          "type": "string"
+        },
+        "CalculationCode": {
+          "type": "string"
+        },
+        "PayrollOutput": {
+          "type": "string"
+        },
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "RelationshipType": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "EmergencyContactPersonAddressCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmergencyContactPersonAddress"
+          }
+        }
+      }
+    },
+    "EmergencyContactPersonContactCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmergencyContactPersonContact"
+          }
+        }
+      }
+    },
+    "DFEthnicity": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "DFVeteransStatus": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "EmployeeProperty": {
+      "type": "object",
+      "properties": {
+        "DataType": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "EmployeeCardinality": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "IsEditable": {
+          "type": "boolean"
+        },
+        "DataTypeParam": {
+          "type": "string"
+        },
+        "GenerateHREvent": {
+          "type": "boolean"
+        },
+        "Sequence": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "EmployeePropertyRole": {
+      "type": "object",
+      "properties": {
+        "EmployeePropertyId": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "RoleId": {
+          "format": "int32",
+          "type": "integer"
+        }
+      }
+    },
+    "EmployeePropertyOption": {
+      "type": "object",
+      "properties": {
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        },
+        "XRefCode": {
+          "type": "string"
+        }
+      }
+    },
+    "PayAdjCode": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "Project": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "Docket": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "DocMgmtSecurityGroup": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "ClockDeviceGroup": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "AppUser": {
+      "type": "object",
+      "properties": {}
+    },
+    "PayAdjCodeGroup": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "WorkContract": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "EmployeeWorkPatternCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeWorkPattern"
+          }
+        }
+      }
+    },
+    "PerformanceCycle": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "PerformanceRating": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "BaseEmployee": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "CommonName": {
+          "type": "string"
+        },
+        "DisplayName": {
+          "type": "string"
+        },
+        "FirstName": {
+          "type": "string"
+        },
+        "LastName": {
+          "type": "string"
+        },
+        "Initials": {
+          "type": "string"
+        },
+        "MaidenName": {
+          "type": "string"
+        },
+        "MiddleName": {
+          "type": "string"
+        },
+        "PreferredLastName": {
+          "type": "string"
+        },
+        "SecondLastName": {
+          "type": "string"
+        },
+        "Suffix": {
+          "type": "string"
+        },
+        "Title": {
+          "type": "string"
+        }
+      }
+    },
+    "LegalEntity": {
+      "type": "object",
+      "properties": {
+        "Country": {
+          "$ref": "#/definitions/Country"
+        },
+        "LegalEntityAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "TaxPropertyCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TaxProperty"
+          }
+        }
+      }
+    },
+    "Department": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "ConfidentialIdentificationType": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "EmployeeConfidentialIdentificationDocumentCollection": {
+      "type": "object",
+      "properties": {
+        "Items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmployeeConfidentialIdentificationDocument"
+          }
+        }
+      }
+    },
+    "Job": {
+      "type": "object",
+      "properties": {
+        "EmployeeEEO": {
+          "$ref": "#/definitions/EmployeeEEO"
+        },
+        "IsUnionJob": {
+          "type": "boolean"
+        },
+        "JobQualifications": {
+          "type": "string"
+        },
+        "JobRank": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "JobUDFString1": {
+          "type": "string"
+        },
+        "JobUDFString2": {
+          "type": "string"
+        },
+        "JobUDFString3": {
+          "type": "string"
+        },
+        "LedgerCode": {
+          "type": "string"
+        },
+        "NOC": {
+          "type": "string"
+        },
+        "JobClassification": {
+          "$ref": "#/definitions/JobClassification"
+        },
+        "JobFunction": {
+          "$ref": "#/definitions/JobFunction"
+        },
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "ContactInformationTypeGroup": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "EmployeeLocationAuthority": {
+      "type": "object",
+      "properties": {
+        "EffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "AuthorityType": {
+          "$ref": "#/definitions/AuthorityType"
+        }
+      }
+    },
+    "CourseType": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "CourseProvider": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "EmployeeHRIncidentNote": {
+      "type": "object",
+      "properties": {
+        "DateAdded": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "Notes": {
+          "type": "string"
+        }
+      }
+    },
+    "Address": {
+      "type": "object",
+      "properties": {
+        "Address1": {
+          "type": "string"
+        },
+        "Address2": {
+          "type": "string"
+        },
+        "Address3": {
+          "type": "string"
+        },
+        "Address4": {
+          "type": "string"
+        },
+        "Address5": {
+          "type": "string"
+        },
+        "Address6": {
+          "type": "string"
+        },
+        "City": {
+          "type": "string"
+        },
+        "PostalCode": {
+          "type": "string"
+        },
+        "Country": {
+          "$ref": "#/definitions/Country"
+        },
+        "State": {
+          "$ref": "#/definitions/State"
+        }
+      }
+    },
+    "OrgLevel": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "SkillType": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "EmergencyContactPersonAddress": {
+      "type": "object",
+      "properties": {
+        "Address1": {
+          "type": "string"
+        },
+        "Address2": {
+          "type": "string"
+        },
+        "Address3": {
+          "type": "string"
+        },
+        "Address4": {
+          "type": "string"
+        },
+        "Address5": {
+          "type": "string"
+        },
+        "Address6": {
+          "type": "string"
+        },
+        "County": {
+          "type": "string"
+        },
+        "City": {
+          "type": "string"
+        },
+        "PostalCode": {
+          "type": "string"
+        },
+        "Country": {
+          "$ref": "#/definitions/Country"
+        },
+        "State": {
+          "$ref": "#/definitions/State"
+        },
+        "ContactInformationType": {
+          "$ref": "#/definitions/ContactInformationType"
+        },
+        "IsPayrollMailing": {
+          "type": "boolean"
+        },
+        "EffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        }
+      }
+    },
+    "EmergencyContactPersonContact": {
+      "type": "object",
+      "properties": {
+        "ContactNumber": {
+          "type": "string"
+        },
+        "Country": {
+          "$ref": "#/definitions/Country"
+        },
+        "ElectronicAddress": {
+          "type": "string"
+        },
+        "Extension": {
+          "type": "string"
+        },
+        "ContactInformationType": {
+          "$ref": "#/definitions/ContactInformationType"
+        },
+        "EffectiveEnd": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "EffectiveStart": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "IsForSystemCommunications": {
+          "type": "boolean"
+        },
+        "IsPreferredContactMethod": {
+          "type": "boolean"
+        },
+        "IsUnlistedNumber": {
+          "type": "boolean"
+        },
+        "FormattedNumber": {
+          "type": "string"
+        },
+        "IsVerified": {
+          "type": "boolean"
+        },
+        "IsRejected": {
+          "type": "boolean"
+        },
+        "ShowRejectedWarning": {
+          "type": "boolean"
+        },
+        "NumberOfVerificationRequests": {
+          "format": "int32",
+          "type": "integer"
+        }
+      }
+    },
+    "EmployeeWorkPattern": {
+      "type": "object",
+      "properties": {
+        "NetHours": {
+          "format": "double",
+          "type": "number"
+        },
+        "ShiftTimeBegin": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "ShiftTimeEnd": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "WorkPatternDayIndex": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "Deparment": {
+          "$ref": "#/definitions/Department"
+        },
+        "Job": {
+          "$ref": "#/definitions/Job"
+        },
+        "ShiftType": {
+          "$ref": "#/definitions/WorkPatternShiftType"
+        },
+        "Location": {
+          "$ref": "#/definitions/Location"
+        },
+        "OrgLocationType": {
+          "$ref": "#/definitions/OrgLocationType"
+        }
+      }
+    },
+    "TaxProperty": {
+      "type": "object",
+      "properties": {
+        "PropertyCodeName": {
+          "type": "string"
+        },
+        "PropertyValue": {
+          "type": "string"
+        }
+      }
+    },
+    "EmployeeConfidentialIdentificationDocument": {
+      "type": "object",
+      "properties": {
+        "EmployeeConfidentialIdentificationId": {
+          "format": "int32",
+          "type": "integer"
+        }
+      }
+    },
+    "EmployeeEEO": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "JobClassification": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "JobFunction": {
+      "type": "object",
+      "properties": {
+        "Level": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "UsableForExternalPosting": {
+          "type": "boolean"
+        },
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "AuthorityType": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "WorkPatternShiftType": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    },
+    "OrgLocationType": {
+      "type": "object",
+      "properties": {
+        "XRefCode": {
+          "type": "string"
+        },
+        "ShortName": {
+          "type": "string"
+        },
+        "LongName": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "basic": {
+      "type": "basic",
+      "description": "Basic HTTP Authentication"
+    }
+  }
+}

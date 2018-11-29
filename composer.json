@@ -1,5 +1,5 @@
 {
-  "name": "kmuenkel/laravel-conduit",
+  "name": "kmuenkel/conduit",
   "description": "A Bridge package for Laravel that offers easy production and testing of API Adapters",
   "homepage": "https://github.com/kmuenkel/laravel-conduit",
   "time": "2017-11-21 13:00:00",

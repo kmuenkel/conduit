@@ -16,10 +16,10 @@ use GuzzleHttp\Cookie\CookieJar as GuzzleCookieJar;
 use GuzzleHttp\ClientInterface as GuzzleClientInterface;
 
 /**
- * Class ConduitServiceProvider
+ * Class ConduitProvider
  * @package Conduit\Providers
  */
-class ConduitServiceProvider extends ServiceProvider
+class ConduitProvider extends ServiceProvider
 {
     /**
      * Bootstrap any application services.

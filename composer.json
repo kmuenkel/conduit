@@ -57,6 +57,13 @@
   "support": {
     "issues": "https://github.com/kmuenkel/laravel-conduit/issues"
   },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Conduit\\Providers\\ConduitProvider"
+      ]
+    }
+  }
   "minimum-stability": "dev",
   "prefer-stable": true
 }

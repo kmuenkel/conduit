@@ -15,7 +15,11 @@ use Http\Adapter\Guzzle6\Client as GuzzleAdapter;
 use GuzzleHttp\Cookie\CookieJar as GuzzleCookieJar;
 use GuzzleHttp\ClientInterface as GuzzleClientInterface;
 
-class BridgesServiceProvider extends ServiceProvider
+/**
+ * Class ConduitServiceProvider
+ * @package Conduit\Providers
+ */
+class ConduitServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap any application services.

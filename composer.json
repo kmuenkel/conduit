@@ -63,7 +63,7 @@
         "Conduit\\Providers\\ConduitProvider"
       ]
     }
-  }
+  },
   "minimum-stability": "dev",
   "prefer-stable": true
 }

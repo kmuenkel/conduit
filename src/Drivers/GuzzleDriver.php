@@ -345,6 +345,7 @@ class GuzzleDriver implements Driver
         }
         
         $uri = Conduit\resolve_uri($uri, $parameters, '', $this->encodeQuery);
+        $query = array_merge($query, array_get(Conduit\parse_uri($uri), 'query', []));
         
         $headers = array_change_key_case($headers);
         $dataType = array_get($headers, 'content-type', Conduit\guess_content_type($body));
@@ -382,8 +383,11 @@ class GuzzleDriver implements Driver
             }
             
             if (!empty($files)) {
+                unset($options['form_params']);
                 $options['multipart'] = [];
-                $fields = explode('&', http_build_query($body));
+                
+                $fields = explode('&', http_build_query(array_merge($query, $body)));
+                $query = [];
                 foreach ($fields as $field) {
                     list($name, $field) = explode('=', $field);
                     $options['multipart'][] = [

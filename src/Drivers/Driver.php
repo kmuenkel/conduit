@@ -15,7 +15,7 @@ interface Driver
      * @return array
      * @throws BridgeTransactionException
      */
-    public function send($uri, $method = 'get', $parameters = []) : array;
+    public function send($uri, $method = 'get', array $parameters = []) : array;
     
     /**
      * @return mixed

@@ -61,10 +61,13 @@ class BaseAdapter {
     
     /**
      * @param Driver $driver
+     * @return $this
      */
     public function setDriver(Driver $driver)
     {
         $this->driver = $driver;
+        
+        return $this;
     }
     
     /**
@@ -76,7 +79,7 @@ class BaseAdapter {
     }
     
     /**
-     * @param $uri
+     * @param string $uri
      * @param string $method
      * @param array $parameters
      * @param array $headers

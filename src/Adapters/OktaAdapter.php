@@ -3,10 +3,14 @@
 namespace Conduit\Adapters;
 
 use Ramsey\Uuid\Uuid;
+use GuzzleHttp\Psr7\Response;
 use function Conduit\parse_uri;
 use function Conduit\resolve_uri;
 use function Conduit\password_generator;
+use function Conduit\parse_http_response;
+use GuzzleHttp\Exception\ClientException;
 use Symfony\Component\HttpFoundation\Cookie;
+use Conduit\Exceptions\BridgeTransactionException;
 
 /**
  * Class OktaAdapter
@@ -198,11 +202,100 @@ class OktaAdapter extends BaseAdapter
             'X-Fowarded-For' => $ipAddress
         ];
         
-        $response = $this->send($route, $method, $parameters, $headers);
-    
+        try {
+            $response = $this->send($route, $method, $parameters, $headers);
+        } catch (BridgeTransactionException $exception) {
+            $previous = $exception->getPrevious();
+            if (!$previous || !($previous instanceof ClientException) || $previous->getCode() != 401) {
+                throw $exception;
+            }
+            
+            $response = $previous->getResponse();
+            $response = (is_object($response) && $response instanceof Response) ?
+                array_get(parse_http_response($response), 'content') : $response;
+            
+            $oktaErrorCode = is_object($response) ? data_get($response, 'errorCode') : null;
+            if ($oktaErrorCode == 'E0000004') {
+                $this->resetLogin($username, $password);
+                $response = $this->send($route, $method, $parameters, $headers);
+            }
+        }
+        
         session(['sessionToken' => collect($response)->pluck('sessionToken')->first()]);
         
         return $response;
+    }
+    
+    /**
+     * @param sting $username
+     * @param sting $password
+     * @return array
+     */
+    public function resetLogin($username, $password)
+    {
+        if ($user = $this->userIsLockedOut($username)) {
+            $userId = data_get($user, 'id');
+            $this->unlockUser($userId);
+        }
+        
+        return $this->setPassword($username, $password);
+    }
+    
+    /**
+     * @param string $username
+     * @return \StdClass|null
+     */
+    public function userIsLockedOut($username)
+    {
+        $route = 'api/v1/users?filter=status eq "LOCKED_OUT" and profile.login eq "{username}"&limit=1';
+        $method = 'GET';
+        $parameters = compact('username');
+        
+        $users = array_get($this->send($route, $method, $parameters), 'content');
+        
+        return array_first($users);
+    }
+    
+    /**
+     * @param string $userId
+     * @return bool
+     */
+    public function unlockUser($userId)
+    {
+        $route = 'api/v1/users/{userId}/lifecycle/unlock';
+        $method = 'POST';
+        $parameters = [
+            'path' => compact('userId')
+        ];
+        
+        $code = array_get($this->send($route, $method, $parameters), 'code');
+        
+        return ($code == 200);
+    }
+    
+    /**
+     * @param string $userId
+     * @param string $password
+     * @return array
+     */
+    public function setPassword($userId, $password)
+    {
+        $route = 'api/v1/users/{userId}';
+        $method = 'PUT';
+        $parameters = [
+            'path' => compact('userId'),
+            'body' => json_encode([
+                'credentials' => [
+                    'password' => [
+                        'value' => $password
+                    ]
+                ]
+            ])
+        ];
+        
+        $user = $this->send($route, $method, $parameters);
+        
+        return $user;
     }
     
     /**

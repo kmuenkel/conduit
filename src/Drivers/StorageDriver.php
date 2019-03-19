@@ -97,7 +97,7 @@ class StorageDriver implements Driver
      * @return array
      * @throws BridgeTransactionException
      */
-    public function send($uri, $method = 'put', $parameters = []) : array
+    public function send($uri, $method = 'put', array $parameters = []) : array
     {
         $content = Conduit\array_to_xml($parameters);
         

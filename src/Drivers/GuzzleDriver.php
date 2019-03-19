@@ -242,7 +242,7 @@ class GuzzleDriver implements Driver
      * @throws BridgeTransactionException
      * @throws GuzzleException
      */
-    public function send($uri, $method = 'get', $parameters = [], array $headers = [], array $cookies = []) : array
+    public function send($uri, $method = 'get', array $parameters = [], array $headers = [], array $cookies = []) : array
     {
         $method = strtolower($method);
         $parameters = $this->generateRequest($uri, $method, $parameters, $headers, $cookies);
@@ -319,12 +319,12 @@ class GuzzleDriver implements Driver
      * @param $uri
      * @param string $method
      * @param array $parameters
-     * @param array $headers
-     * @param array $cookies
      * @return array
      */
-    public function generateRequest($uri, $method = 'get', $parameters = [], array $headers = [], array $cookies = []) : array
+    public function generateParameters($uri, $method = 'get', array $parameters = [])
     {
+        $method = strtolower($method);
+        
         $query = $path = [];
         $body = $parameters;
         $parameters = [];
@@ -345,6 +345,22 @@ class GuzzleDriver implements Driver
         }
         
         $uri = Conduit\resolve_uri($uri, $parameters, '', $this->encodeQuery);
+        
+        return compact('uri', 'path', 'query', 'body');
+    }
+    
+    /**
+     * @param $uri
+     * @param string $method
+     * @param array $parameters
+     * @param array $headers
+     * @param array $cookies
+     * @return array
+     */
+    public function generateRequest($uri, $method = 'get', array $parameters = [], array $headers = [], array $cookies = []) : array
+    {
+        /** $uri, $path, $query, $body */
+        extract($this->generateParameters($uri, $method, $parameters));
         
         $headers = array_change_key_case($headers);
         $dataType = array_get($headers, 'content-type', Conduit\guess_content_type($body));

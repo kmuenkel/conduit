@@ -1,0 +1,6 @@
+This package borrows a lot of inspiration from Eloquent in how it's structured.
+
+* "Endpoints" are as simple to spin up as Model classes.  As the name suggests, one Endpoint class per external API endpoint you might want to communicate with.
+* Similar to Model classes, these objects also serve as Structs for the response content, which has various normalizers that can parse HTML, XML, or JSON.  Additional parsers can be added as needed, and be made Traversable if at all possible (similar to Collections).
+* The "Adapter" class an Endpoint uses to convert its parameters has a compositional relationship with the Endpoint, largely to give ServiceProviders the opportunity to auto-inject some Middleware.  Though most of the time, the Endpoint itself would supply that.  (Like OAuth or SAML.  These don't exist yet, but that's where you'd put them.)  The Adapter can actually be leveraged independently of an Endpoint, similar to Models vs. Query-Builder.
+* The request parameters are then send on to a Bridge, that would typically be a Facade for whatever mechanism ultimately sends the request off.  (Like how Query-Builder uses DB Grammar classes.) Right now only a Guzzle (cURL) one exists, but by building a compositional relationship here dependent on the Interface rather than concrete class, we have the opportunity to add others, like SOAP or FTP.

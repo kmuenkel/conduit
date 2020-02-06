@@ -1,69 +1,52 @@
 {
-  "name": "kmuenkel/conduit",
-  "description": "A Bridge package for Laravel that offers easy production and testing of API Adapters",
-  "homepage": "https://github.com/kmuenkel/laravel-conduit",
-  "time": "2017-11-21 13:00:00",
-  "authors": [
-    {
-      "name": "Kevin Muenkel",
-      "email": "kevin_tm@yahoo.com",
-      "role": "Creator, Developer, Maintainer"
-    }
-  ],
-  "keywords": [
-    "API",
-    "bridge",
-    "adapter",
-    "driver",
-    "laravel"
-  ],
-  "license": "MIT",
-  "type": "library",
-  "require": {
-    "php": ">=7.0.0",
-    "php-http/httplug": "^1.0",
-    "illuminate/support": "^5.0",
-    "psr/http-message": "^1.0",
-    "monolog/monolog": "^1.0",
-    "guzzlehttp/guzzle": "~6.0",
-    "php-http/guzzle6-adapter": "^1.1",
-    "league/oauth2-client": "^2.2",
-    "toin0u/geocoder-laravel": "@stable",
-    "barryvdh/laravel-ide-helper": "^2.1",
-    "ramsey/uuid": "^3.7"
-  },
-  "require-dev": {
-    "orchestra/testbench": "~3.0"
-  },
-  "suggest": {
-    "neoxia/laravel-sftp": "Adds support for SFTP Filesystem drivers for use with the StorageDriver"
-  },
-  "autoload": {
-    "psr-4": {
-      "Conduit\\": "src/"
+    "name": "kmuenkel/conduit",
+    "description": "Easily produce Adapter classes and dummy-responses for testing them",
+    "time": "2020-01-29 17:31:00",
+    "authors": [
+        {
+            "name": "Kevin Muenkel",
+            "email": "kevin_tm@yahoo.com"
+        }
+    ],
+    "keywords": [
+        "testing",
+        "generator",
+        "adapter",
+        "laravel",
+        "API"
+    ],
+    "type": "library",
+    "require": {
+        "php": ">=7.0.0",
+        "ext-http": "*",
+        "guzzlehttp/guzzle": "~6.0",
+        "kmuenkel/handler-stack": "^1.0",
+        "kmuenkel/rule-parser": "^1.0"
     },
-    "files": [
-      "src/helpers.php"
-    ]
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "Conduit\\Tests\\": "tests/"
-    }
-  },
-  "config": {
-    "preferred-install": "dist"
-  },
-  "support": {
-    "issues": "https://github.com/kmuenkel/laravel-conduit/issues"
-  },
-  "extra": {
-    "laravel": {
-      "providers": [
-        "Conduit\\Providers\\ConduitProvider"
-      ]
-    }
-  },
-  "minimum-stability": "dev",
-  "prefer-stable": true
+    "autoload-dev": {
+        "psr-4": {
+            "Concept\\Tests\\": "tests/"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Conduit\\": "src/"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
+    },
+    "license": "MIT",
+    "config": {
+        "preferred-install": "dist"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Conduit\\Providers\\ConduitServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

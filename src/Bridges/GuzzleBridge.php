@@ -5,7 +5,6 @@ namespace Conduit\Bridges;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Request;
-use InvalidArgumentException;
 use Conduit\Adapters\Adapter;
 use GuzzleHttp\RequestOptions;
 use Conduit\Endpoints\Endpoint;
@@ -60,10 +59,12 @@ class GuzzleBridge implements Bridge
      */
     public function __construct(Adapter $adapter, array $config = [])
     {
-        $this->setAdapter($adapter);
         $this->config = $config;
         $this->config['strict_mode'] = $this->config['strict_mode'] ?? false;
-        $this->refresh();
+
+        $this->setAdapter($adapter);
+        $client = $this->newClientInstance();
+        $this->setClient($client);
 
         self::$permanentCookies = self::$keepCookies ? self::$permanentCookies : null;
         self::$permanentCookies = $this->cookies = self::$permanentCookies ?:
@@ -79,22 +80,15 @@ class GuzzleBridge implements Bridge
     }
 
     /**
-     * @void
-     */
-    protected function refresh()
-    {
-        $client = $this->newClientInstance();
-        $this->setClient($client);
-    }
-
-    /**
      * {@inheritDoc}
      */
     public function send()
     {
         $request = $this->makeRequest();
+        $response = $this->client->send($request, $this->options);
+        $this->adapter->setCookies($this->cookies->toArray());
 
-        return $this->client->send($request, $this->options);
+        return $response;
     }
 
     /**
@@ -103,9 +97,16 @@ class GuzzleBridge implements Bridge
     public function setAdapter(Adapter $adapter): Bridge
     {
         $this->adapter = $adapter;
-        $this->refresh();
 
         return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getAdapter(): Adapter
+    {
+        return $this->adapter;
     }
 
     /**
@@ -124,8 +125,6 @@ class GuzzleBridge implements Bridge
      */
     public function newClientInstance()
     {
-        $this->config['base_uri'] = $this->getUrl();
-
         return app(Client::class, ['config' => $this->config]);
     }
 
@@ -134,12 +133,12 @@ class GuzzleBridge implements Bridge
      */
     protected function getCookies()
     {
-        $cookiesPermitted = (bool)$this->config['cookies'] ?? true;
+        $cookiesPermitted = (bool)($this->config['cookies'] ?? true);
 
         if ($cookiesPermitted) {
             /** @var CookieJar|string[]|SetCookie[] $cookies */
             $cookies = $this->adapter->getCookies();
-            $cookies = $this->normalizeCookies($cookies, $this->config['strict_mode']);
+            $cookies = normalize_cookies($cookies, $this->config['strict_mode']);
 
             foreach ($cookies as $cookie) {
                 $this->cookies->setCookie($cookie);
@@ -147,31 +146,6 @@ class GuzzleBridge implements Bridge
         }
 
         return $this->cookies;
-    }
-
-    /**
-     * @param CookieJar|string[]|SetCookie[] $cookies
-     * @param bool $strictMode
-     * @return CookieJar
-     */
-    public function normalizeCookies($cookies, $strictMode = false)
-    {
-        if (!($cookies instanceof CookieJar)) {
-            foreach ($cookies as $index => $cookie) {
-                if (is_string($cookie)) {
-                    $cookies[$index] = SetCookie::fromString($cookie);
-                } elseif (is_array($cookie)) {
-                    $cookies[$index] = app(SetCookie::class, ['data' => $cookie]);
-                } elseif (!($cookie instanceof SetCookie)) {
-                    throw new InvalidArgumentException('Cookie must be a string, array, or instance of '
-                        .SetCookie::class.'.');
-                }
-            }
-
-            $cookies = app(CookieJar::class, ['strictMode' => $strictMode, 'cookieArray' => $cookies]);
-        }
-
-        return $cookies;
     }
 
     /**
@@ -188,11 +162,11 @@ class GuzzleBridge implements Bridge
     /**
      * @return string
      */
-    public function getUrl()
+    public function getBaseUrl()
     {
         $protocol = $this->adapter->getProtocol();
         $domain = $this->adapter->getDomain();
-        $url = ($protocol ? "$protocol://" : '').$domain;
+        $url = (($protocol && $domain) ? "$protocol://" : '').$domain;
 
         return $url;
     }
@@ -203,7 +177,7 @@ class GuzzleBridge implements Bridge
     protected function makeRequest()
     {
         $method = $this->adapter->getMethod();
-        $uri = $this->adapter->getRoute();
+        $uri = $this->getBaseUrl().'/'.$this->adapter->getRoute();
         $headers = $this->adapter->getHeaders();
         $body = $this->adapter->getBody();
 
@@ -214,7 +188,7 @@ class GuzzleBridge implements Bridge
             RequestOptions::COOKIES => $this->getCookies()
         ]);
 
-        $contentType = $headers['accept'] ?? Endpoint::CONTENT_TYPE_URL_ENCODED_FORM;
+        $contentType = $headers['content-type'] ?? Endpoint::CONTENT_TYPE_URL_ENCODED_FORM;
         switch ($contentType) {
             case Endpoint::CONTENT_TYPE_JSON:
                 $this->options[RequestOptions::JSON] = $body;

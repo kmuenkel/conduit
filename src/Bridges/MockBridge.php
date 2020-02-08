@@ -2,11 +2,10 @@
 
 namespace Conduit\Bridges;
 
-use Conduit\Adapters\Adapter;
 use GuzzleHttp\Psr7\Response;
-use Evaluator\Parsers\ConfigParser;
 use GuzzleHttp\Cookie\SetCookie;
 use GuzzleHttp\Cookie\CookieJar;
+use Evaluator\Parsers\ConfigParser;
 
 /**
  * Class MockBridge
@@ -14,44 +13,39 @@ use GuzzleHttp\Cookie\CookieJar;
  */
 class MockBridge extends GuzzleBridge
 {
-    const ALL = 'all';
-    const ANY = 'any';
-
     /**
      * @var Response[]
      */
-    protected $responses = [];
+    protected static $responses = [];
 
     /**
      * @var array[]
      */
-    protected $conditionSets = [];
-
-    /**
-     * @var bool
-     */
-    protected static $keepCookies = false;
+    protected static $conditionSets = [];
 
     /**
      * {@inheritDoc}
      */
     public function send()
     {
-        return $this->findResponse();
+        $response = $this->findResponse();
+        $this->adapter->setCookies($this->cookies->toArray());
+
+        return $response;
     }
 
     /**
      * @param Response $response
      * @param array $conditions
-     * @return $this
      */
-    public function setUpResponse(Response $response, array $conditions)
+    public static function setUpResponse(Response $response, array $conditions)
     {
-        $conditions[self::ALL] = array_keys($conditions);
-        $this->conditionSets = $conditions;
-        $this->responses[] = $response;
-
-        return $this;
+        $conditions['all'] = [
+            'comparator' => 'all',
+            'value2' => array_keys($conditions)
+        ];
+        self::$conditionSets[] = self::normalizeConditions($conditions);
+        self::$responses[] = $response;
     }
 
     /**
@@ -61,9 +55,9 @@ class MockBridge extends GuzzleBridge
      * @param CookieJar|string[]|SetCookie[] $cookies
      * @return Response
      */
-    public function makeResponse($status = 200, $headers = [], $body = null, $cookies = [])
+    public static function makeResponse($status = 200, $headers = [], $body = null, $cookies = [])
     {
-        $cookies = $this->normalizeCookies($cookies, $this->config['strict_mode']);
+        $cookies = normalize_cookies($cookies);
         /** @var SetCookie $cookie */
         foreach ($cookies as $cookie) {
             $headers['set-cookie'][] = (string)$cookie;
@@ -75,49 +69,54 @@ class MockBridge extends GuzzleBridge
     }
 
     /**
+     * @param array $conditions
+     * @return array
+     */
+    protected static function normalizeConditions(array $conditions)
+    {
+        $reservedKeys = [
+            'reference1',
+            'reference2',
+            'value1',
+            'value2',
+            'child1',
+            'child2',
+            'comparator'
+        ];
+
+        $rules = [];
+
+        foreach ($conditions as $name => $rule) {
+            if (!is_array($rule) || !empty(array_diff(array_keys($rule), $reservedKeys))) {
+                $rule = [
+                    'reference1' => $name,
+                    'value2' => $rule
+                ];
+            }
+
+            $rule['comparator'] = $rule['comparator'] ?? '==';
+
+            $rules[$name] = $rule;
+        }
+
+        return $rules;
+    }
+
+    /**
      * @return Response
      */
     public function findResponse()
     {
-        $data = [
-            'method' => $this->adapter->getMethod(),
-            'protocol' => $this->adapter->getProtocol(),
-            'domain' => $this->adapter->getDomain(),
-            'route' => $this->adapter->getRoute(),
-            'query' => $this->adapter->getQuery(),
-            'body' => $this->adapter->getBody(),
-            'headers' => $this->adapter->getHeaders(),
-            'cookies' => $this->normalizeCookies($this->adapter->getCookies(), $this->config['strict_mode'])->toArray()
-        ];
-
+        $data = parse_adapter_request($this->adapter);
         $evaluator = app(ConfigParser::class, compact('data'));
 
-        foreach ($this->conditionSets as $index => $conditions) {
+        foreach (self::$conditionSets as $index => $conditions) {
             $evaluator->setRules($conditions);
-            if ($evaluator->evaluate(self::ALL)) {
-                return $this->responses[$index];
+            if ($evaluator->evaluate('all')) {
+                return self::$responses[$index];
             }
         }
 
         return $this->makeResponse();
-    }
-
-    public function setDefault()
-    {
-        $status = 200;
-        $headers = [];
-        $body = null;
-        $response = app(Response::class, compact('status', 'headers', 'body'));
-        $cookies = app(CookieJar::class, ['strictMode' => $this->config['strict_mode'], 'cookieArray' => []]);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function setAdapter(Adapter $adapter): Bridge
-    {
-        $this->adapter = $adapter;
-
-        return $this;
     }
 }

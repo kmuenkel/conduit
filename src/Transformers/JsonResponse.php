@@ -16,22 +16,23 @@ class JsonResponse extends ResponseStruct
     /**
      * @var object
      */
-    protected $content = (object)[];
+    protected $content;
 
     /**
      * @param ResponseInterface $response
-     * @return StdClass|array
+     * @return $this
      * @throws JsonException
      */
-    public function __invoke(ResponseInterface $response)
+    public function __invoke(ResponseInterface $response): ResponseStruct
     {
+        $this->content = (object)[];
         $body = $response->getBody();
-        $json = json_decode($body);
+        $this->content = json_decode($body);
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new JsonException(json_last_error_msg());
         }
 
-        return $this->content = $json;
+        return $this;
     }
 
     /**

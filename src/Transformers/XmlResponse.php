@@ -55,16 +55,25 @@ class XmlResponse extends ResponseStruct
 
     /**
      * @param ResponseInterface $response
-     * @return DOMXpath
+     * @return $this
      */
-    public function __invoke(ResponseInterface $response)
+    public function __invoke(ResponseInterface $response): ResponseStruct
     {
         $body = $response->getBody();
         $doc = app(DOMDocument::class, ['version' => $this->version, 'encoding' => $this->encoding]);
-        $doc->loadXML($body);
-        $dom = app(DOMXpath::class, compact('doc'));
+        $this->load($doc, $body);
+        $this->content = app(DOMXpath::class, compact('doc'));
 
-        return $this->content = $dom;
+        return $this;
+    }
+
+    /**
+     * @param DOMDocument $doc
+     * @param string $body
+     */
+    protected function load(DOMDocument $doc, string $body)
+    {
+        $doc->loadXML($body);
     }
 
     /**
@@ -138,7 +147,7 @@ class XmlResponse extends ResponseStruct
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->content->document->saveXML();
     }

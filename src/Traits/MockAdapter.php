@@ -2,6 +2,8 @@
 
 namespace Conduit\Traits;
 
+use Conduit\Adapters\Adapter;
+use Conduit\Bridges\MockBridge;
 use GuzzleHttp\Client;
 use Conduit\Bridges\Bridge;
 use GuzzleHttp\HandlerStack;
@@ -30,12 +32,25 @@ trait MockAdapter
                 $args = compile_arguments(Client::class, $args);
                 $handler = HandlerStack::create($handler);
                 $args['config']['handler'] = $handler;
+                $args = array_values($args);
 
-                return new Client($args['config']);
+                return new Client(...$args);
             });
 
-            $this->app->bind(GuzzleBridge::class, function (Application $app, array $args) use ($bridge) {
+            $this->app->bind(GuzzleBridge::class, function (Application $app, array $args = []) use ($bridge) {
                 return $bridge;
+            });
+
+            $middleware = app(Adapter::class)->getHandlers();
+            $this->app->bind(Adapter::class, function (Application $app, array $args = []) use ($middleware) {
+                $args = compile_arguments(Adapter::class, $args);
+                $args = array_values($args);
+                $adapter = (new Adapter(...$args))->setHandlers($middleware);
+
+                $mockBridge = app(MockBridge::class, compact('adapter'));
+                $adapter->setBridge($mockBridge);
+
+                return $adapter;
             });
         }
 

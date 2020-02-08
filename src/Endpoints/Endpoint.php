@@ -2,14 +2,13 @@
 
 namespace Conduit\Endpoints;
 
-use Conduit\Transformers\ErrorResponse;
 use Exception;
 use Countable;
 use ArrayAccess;
 use IteratorAggregate;
 use Conduit\Adapters\Adapter;
 use InvalidArgumentException;
-use Conduit\Transformers\RawResponse;
+use Conduit\Transformers\ErrorResponse;
 use Psr\Http\Message\ResponseInterface;
 use Conduit\Transformers\ResponseStruct;
 
@@ -79,10 +78,7 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
     /**
      * @var array
      */
-    protected $headers = [
-        'content-type' => self::CONTENT_TYPE_JSON,
-        'accept' => self::CONTENT_TYPE_JSON
-    ];
+    protected $headers = [];
 
     /**
      * @var array
@@ -115,28 +111,22 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
     protected $middleware = [];
 
     /**
-     * @var bool
-     */
-    protected $strictMode;
-
-    /**
      * Endpoint constructor.
      */
     public function __construct()
     {
-        $this->strictMode = !is_numeric($this->strictMode) ? $this->strictMode : config('conduit.strict-mode', false);
-
         $serviceName = $this->serviceName ?: config('conduit.default_service');
         $config = config("conduit.services.$serviceName");
         $this->setMiddleware($this->middleware);
 
-        $this->protocol = ($this->protocol ?: $config['protocol']) ?: 'https';
+        $this->protocol = ($this->protocol ?: $config['protocol']) ?: 'http';
         $this->domain = $this->domain ?: $config['domain'];
 
         $adapter = $this->newAdapterInstance();
         $this->setAdapter($adapter);
 
         $this->setTransformer();
+        $this->setErrorTransformer();
     }
 
     /**
@@ -148,17 +138,26 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
         $this->middleware = [];
         foreach ($middleware as $name => $middlewareItem) {
             if (is_string($middlewareItem)) {
-                $name = $middlewareItem;
+                $name = is_int($name) ? $middlewareItem : $name;
                 $middlewareItem = app($middlewareItem);
             }
 
-            if (!is_callable($middlewareItem)) {
-                throw new InvalidArgumentException('Middleware must be callable, or the name of a callable class.'
-                    ."'".get_class($middlewareItem)."' given.");
-            }
-
-            $this->middleware[$name] = $middlewareItem;
+            $this->addMiddleware($middlewareItem, $name);
         }
+
+        return $this;
+    }
+
+    /**
+     * @param callable $middleware
+     * @param string|null $name
+     * @return $this
+     */
+    public function addMiddleware(callable $middleware, $name = null)
+    {
+        $name = $name ?: count($this->middleware);
+        $this->middleware[$name] = $middleware;
+        $this->adapter->pushHandler($middleware);
 
         return $this;
     }
@@ -178,16 +177,16 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
     public function newAdapterInstance($bridgeName = null)
     {
         $adapter = app(Adapter::class, compact('bridgeName'))
-            ->setMethod($this->method)
-            ->setProtocol($this->protocol)
-            ->setDomain($this->domain)
-            ->setRoute($this->route)
-            ->setQuery($this->query)
-            ->setBody($this->body)
-            ->setHeaders($this->headers)
-            ->setCookies($this->cookies);
+            ->setMethod($this->getMethod())
+            ->setProtocol($this->getProtocol())
+            ->setDomain($this->getDomain())
+            ->setRoute($this->getRoute())
+            ->setQuery($this->getQuery())
+            ->setBody($this->getBody())
+            ->setHeaders($this->getHeaders())
+            ->setCookies($this->getCookies());
 
-        foreach ($this->middleware as $middleware) {
+        foreach ($this->getMiddleware() as $middleware) {
             $adapter->pushHandler($middleware);
         }
 
@@ -207,25 +206,41 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
 
     /**
      * @return $this
-     * @throws Exception
      */
     public function send()
     {
-        $transformer = $this->getTransformer();
         $this->rawResponse = $this->adapter->send();
+        $transformer = $this->getTransformer();
 
         try {
             $this->responseContent = $transformer($this->rawResponse);
         } catch (Exception $error) {
-            if ($this->strictMode) {
-                throw $error;
-            }
+            $defaultTransformer = app(ErrorResponse::class)->setError($error);
+            $errorTransformer = $this->getErrorTransformer();
+            $errorTransformer = $errorTransformer ? $errorTransformer->setError($error) : null;
+            $inferredTransformer = $this->guessTransformer($defaultTransformer);
+            $newTransformer = $errorTransformer ?: $inferredTransformer;
+            $newTransformer = ($newTransformer instanceof $transformer) ? $defaultTransformer : $newTransformer;
 
-            $errorTransformer = $this->getErrorTransformer()->setError($error);
-            $this->responseContent = $errorTransformer($this->rawResponse);
+            $this->responseContent = $newTransformer($this->rawResponse);
         }
 
         return $this;
+    }
+
+    /**
+     * @param ResponseStruct|null $default
+     * @return ResponseStruct
+     */
+    protected function guessTransformer(ResponseStruct $default = null)
+    {
+        $requestContentType = $this->headers['accept'] ?? null;
+        $responseContentType = !$this->rawResponse ? null :
+            (current($this->rawResponse->getHeader('content-type')) ?: null);
+        $contentType = $responseContentType ?: $requestContentType;
+        $transformer = (!$contentType && $default) ? $default : ResponseStruct::make($contentType);
+
+        return $transformer;
     }
 
     /**
@@ -234,13 +249,12 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
      */
     public function setTransformer(ResponseStruct $transformer = null): Endpoint
     {
-        $contentType = $this->headers['accept'] ?? null;
-        $defaultTransformer = ResponseStruct::make($contentType);
-        $localTransformer = $this->transformerName ?  app($this->transformerName) : $defaultTransformer;
+        $localTransformer = $this->transformerName ?  app($this->transformerName) : null;
         $this->transformer = $transformer ?: $localTransformer;
 
-        if (!($this->transformer instanceof ResponseStruct)) {
-            throw new InvalidArgumentException('Transformer must be an instance of '.ResponseStruct::class);
+        if ($this->transformer && !($this->transformer instanceof ResponseStruct)) {
+            throw new InvalidArgumentException('Transformer must be an instance of '.ResponseStruct::class
+                .". '".get_class($this->transformer)."' given.");
         }
 
         return $this;
@@ -251,7 +265,7 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
      */
     public function getTransformer()
     {
-        return $this->transformer;
+        return $this->transformer ?: $this->guessTransformer();
     }
 
     /**
@@ -260,12 +274,12 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
      */
     public function setErrorTransformer(ErrorResponse $transformer = null): Endpoint
     {
-        $defaultTransformer = app(RawResponse::class);
-        $localTransformer = $this->errorTransformerName ?  app($this->errorTransformerName) : $defaultTransformer;
+        $localTransformer = $this->errorTransformerName ?  app($this->errorTransformerName) : null;
         $this->errorTransformer = $transformer ?: $localTransformer;
 
-        if (!($this->errorTransformer instanceof ErrorResponse)) {
-            throw new InvalidArgumentException('Transformer must be an instance of '.ErrorResponse::class);
+        if ($this->errorTransformer && !($this->errorTransformer instanceof ErrorResponse)) {
+            throw new InvalidArgumentException('Transformer must be an instance of '.ErrorResponse::class
+                .". '".get_class($this->errorTransformer)."' given.");
         }
 
         return $this;
@@ -293,6 +307,78 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
     public function getResponseContent()
     {
         return $this->responseContent;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMethod(): string
+    {
+        return $this->method;
+    }
+
+    /**
+     * @return string
+     */
+    public function getProtocol(): string
+    {
+        return $this->protocol;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDomain(): string
+    {
+        return $this->domain;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRoute(): string
+    {
+        return $this->route;
+    }
+
+    /**
+     * @return array
+     */
+    public function getQuery(): array
+    {
+        return $this->query;
+    }
+
+    /**
+     * @return array
+     */
+    public function getBody(): array
+    {
+        return $this->body;
+    }
+
+    /**
+     * @return array
+     */
+    public function getHeaders(): array
+    {
+        return $this->headers;
+    }
+
+    /**
+     * @return array
+     */
+    public function getCookies(): array
+    {
+        return $this->cookies;
+    }
+
+    /**
+     * @return Adapter
+     */
+    public function getAdapter(): Adapter
+    {
+        return $this->adapter;
     }
 
     /**

@@ -2,9 +2,8 @@
 
 namespace Conduit\Transformers;
 
-use DOMXpath;
 use DOMDocument;
-use Psr\Http\Message\ResponseInterface;
+use ErrorException;
 
 /**
  * Class JsonTransformer
@@ -13,23 +12,23 @@ use Psr\Http\Message\ResponseInterface;
 class HtmlResponse extends XmlResponse
 {
     /**
-     * @param ResponseInterface $response
-     * @return DOMXpath
+     * {@inheritDoc}
      */
-    public function __invoke(ResponseInterface $response)
+    protected function load(DOMDocument $doc, string $body)
     {
-        $body = $response->getBody();
-        $doc = app(DOMDocument::class, ['version' => $this->version, 'encoding' => $this->encoding]);
-        $doc->loadHTML($body);
-        $dom = app(DOMXpath::class, compact('doc'));
-
-        return $dom;
+        try {
+            $doc->loadHTML($body);
+        } catch (ErrorException $error) {
+            if (preg_match("/ID .+ already defined in Entity/", $error->getMessage())) {
+                @$doc->loadHTML($body);
+            }
+        }
     }
 
     /**
      * {@inheritDoc}
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->content->document->saveHTML();
     }

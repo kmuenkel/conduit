@@ -14,10 +14,12 @@ class RawResponse extends ResponseStruct
 
     /**
      * @param ResponseInterface $response
-     * @return ResponseInterface
+     * @return $this
      */
-    public function __invoke(ResponseInterface $response)
+    public function __invoke(ResponseInterface $response): ResponseStruct
     {
-        return $this->content = $response;
+        $this->content = $response->getBody();
+
+        return $this;
     }
 }

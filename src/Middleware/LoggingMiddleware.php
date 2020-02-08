@@ -17,14 +17,47 @@ class LoggingMiddleware
     protected $logger;
 
     /**
+     * @var int
+     */
+    protected static $truncate = 0;
+
+    /**
      * LoggingMiddleware constructor.
      * @param callable|null $logger
      */
     public function __construct(callable $logger = null)
     {
-        $this->setLogger($logger ?: function (Adapter $adapter, ResponseInterface $response) {
-            error_log(print_r(compact('adapter', 'response'), true));
+        $truncate = config('conduit.middleware.'.static::class.'.truncate');
+        $truncate = is_null($truncate) ? config('conduit.middleware.'.self::class.'.truncate', 0) : $truncate;
+        self::setTruncate($truncate);
+
+        $this->setLogger($logger ?: function (Adapter $adapter) {
+            $request = parse_adapter_request($adapter);
+            $response = parse_adapter_response($adapter);
+            $truncate = self::getTruncate();
+
+            if ($truncate && strlen($response['body']) > $truncate) {
+                $response['body'] = substr($response['body'], 0, $truncate).'...';
+            }
+
+            error_log(print_r(compact('request', 'response'), true));
         });
+    }
+
+    /**
+     * @param int $truncate
+     */
+    public static function setTruncate(int $truncate)
+    {
+        self::$truncate = $truncate;
+    }
+
+    /**
+     * @return int
+     */
+    public static function getTruncate()
+    {
+        return self::$truncate;
     }
 
     /**
@@ -34,10 +67,6 @@ class LoggingMiddleware
     {
         $this->logger = $logger;
     }
-
-    //TODO: Parse the request details out of the Adapter
-
-    //TODO: Parse the response details out of the results
 
     /**
      * @param Adapter $adapter
@@ -49,9 +78,11 @@ class LoggingMiddleware
         $results = null;
 
         try {
+            /** @var ResponseInterface $results */
             $results = $next($adapter);
         } finally {
-            ($this->logger)($adapter, $results);
+            $results && $adapter->setResponse($results);
+            ($this->logger)($adapter);
         }
 
         return $results;

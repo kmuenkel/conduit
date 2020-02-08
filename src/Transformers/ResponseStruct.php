@@ -28,7 +28,7 @@ abstract class ResponseStruct
      */
     public static function make($contentType = null)
     {
-        if (array_key_exists($contentType, self::$responseStructs)) {
+        if ($contentType && array_key_exists($contentType, self::$responseStructs)) {
             return self::$responseStructs[$contentType];
         }
 
@@ -66,10 +66,18 @@ abstract class ResponseStruct
     }
 
     /**
-     * @param ResponseInterface $response
-     * @return ResponseInterface
+     * @return mixed|null
      */
-    abstract public function __invoke(ResponseInterface $response);
+    public function getRaw()
+    {
+        return $this->content;
+    }
+
+    /**
+     * @param ResponseInterface $response
+     * @return ResponseStruct
+     */
+    abstract public function __invoke(ResponseInterface $response): ResponseStruct;
 
     /**
      * @param string|int $offset

@@ -5,6 +5,7 @@ namespace Conduit\Adapters;
 use Conduit\Bridges\Bridge;
 use InvalidArgumentException;
 use HandlerStack\Traits\HandlerStack;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * Class Adapter
@@ -30,6 +31,11 @@ class Adapter
         'sftp',
         'smtp'
     ];
+
+    /**
+     * @var ResponseInterface|null
+     */
+    protected $response = null;
 
     /**
      * @var string|null
@@ -98,7 +104,7 @@ class Adapter
     public function newBridgeInstance()
     {
         $bridgeConfig = config("conduit.bridges.$this->bridgeName");
-        $config = $config['config'] ?? [];
+        $config = $bridgeConfig['config'] ?? [];
         $bridge = app($bridgeConfig['bridge'], ['adapter' => $this, 'config' => $config]);
 
         if (!$bridge instanceof Bridge) {
@@ -121,9 +127,9 @@ class Adapter
     }
 
     /**
-     * @return Bridge
+     * @return Bridge|null
      */
-    public function getBridge(): Bridge
+    public function getBridge()
     {
         return $this->bridge;
     }
@@ -134,9 +140,10 @@ class Adapter
      */
     public function setProtocol(string $protocol): Adapter
     {
-        $protocol = strtoupper($protocol);
+        $protocol = strtolower($protocol);
         if (!in_array($protocol, self::PROTOCOLS)) {
-            throw new InvalidArgumentException('Method must be one of the following: '.implode(', ', self::PROTOCOLS));
+            throw new InvalidArgumentException('Method must be one of the following: '.implode(', ', self::PROTOCOLS)
+                .". '$protocol' given.");
         }
         $this->protocol = $protocol;
 
@@ -291,16 +298,48 @@ class Adapter
     }
 
     /**
-     * @return mixed
+     * @return ResponseInterface
      */
     public function send()
     {
+        /**
+         * @param Adapter $adapter
+         * @return ResponseInterface
+         */
         $final = function (Adapter $adapter) {
-            $results = $adapter->bridge->send();
+            $results = $adapter->getBridge()->send();
 
             return $results;
         };
 
-        return $this->handle($this, $final);
+        return $this->response = $this->handle($this, $final);
+    }
+
+    /**
+     * @return ResponseInterface|null
+     */
+    public function getResponse()
+    {
+        return $this->response;
+    }
+
+    /**
+     * @param ResponseInterface $response
+     * @return $this
+     */
+    public function setResponse(ResponseInterface $response)
+    {
+        $this->response = $response;
+
+        return $this;
+    }
+
+    /**
+     * @void
+     */
+    public function __clone()
+    {
+        $this->bridge = clone $this->bridge;
+        $this->bridge->setAdapter($this);
     }
 }

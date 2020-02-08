@@ -21,4 +21,9 @@ interface Bridge
      * @return Bridge
      */
     public function setAdapter(Adapter $adapter): Bridge;
+
+    /**
+     * @return Adapter
+     */
+    public function getAdapter(): Adapter;
 }

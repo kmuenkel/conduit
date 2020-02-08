@@ -2,6 +2,7 @@
 
 namespace Conduit\Providers;
 
+use Conduit\Middleware\ArchiveMiddleware;
 use Exception;
 use Conduit\Adapters\Adapter;
 use Psr\Http\Message\ResponseInterface;
@@ -42,6 +43,11 @@ class ConduitServiceProvider extends ServiceProvider
                 $this->applyLogger($adapter, $app);
             }
 
+            if (config('app.env') == 'testing') {
+                $archiveMiddleware = app(ArchiveMiddleware::class);
+                $adapter->pushHandler($archiveMiddleware);
+            }
+
             return $adapter;
         });
     }
@@ -54,10 +60,17 @@ class ConduitServiceProvider extends ServiceProvider
     {
         /**
          * @param Adapter $adapter
-         * @param ResponseInterface $response
          */
-        $logger = function (Adapter $adapter, ResponseInterface $response) use ($app) {
-            $app->make('log')->debug(print_r(compact('adapter', 'response'), true));
+        $logger = function (Adapter $adapter) use ($app) {
+            $request = parse_adapter_request($adapter);
+            $response = parse_adapter_response($adapter);
+            $truncate = LoggingMiddleware::getTruncate();
+
+            if ($truncate && strlen($response['body']) > $truncate) {
+                $response['body'] = substr($response['body'], 0, $truncate).'...';
+            }
+
+            $app->make('log')->debug(print_r(compact('request', 'response'), true));
         };
 
         $loggingMiddleware = app(LoggingMiddleware::class, compact('logger'));

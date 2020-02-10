@@ -6,7 +6,7 @@ use GuzzleHttp\RedirectMiddleware;
 use function GuzzleHttp\default_user_agent;
 
 return [
-    'default_service' => env('DEFAULT_SERVICE', 'leo'),
+    'default_service' => env('DEFAULT_SERVICE'),
     'default_bridge' => 'guzzle',
 
     'services' => [

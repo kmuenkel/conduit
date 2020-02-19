@@ -1,4 +1,6 @@
-This package borrows a lot of inspiration from Eloquent in how it's structured.
+This package allows for easy creation of API adapters. Extendable to include support for things like SOAP or FTP. Eloquent\Model-like structure, i.e. one class per endpoint that doubles as a response Struct. And Mockery-like ability to cordon off external calls and send back dummy-responses for the sake of PhpUnit.
+
+This borrows a lot of inspiration from Eloquent in how it's structured.
 
 * "Endpoints" are as simple to spin up as Model classes.  As the name suggests, one Endpoint class per external API endpoint you might want to communicate with.
 * Similar to Model classes, these objects also serve as Structs for the response content, which has various normalizers that can parse HTML, XML, or JSON.  Additional parsers can be added as needed, and be made Traversable if at all possible (similar to Collections).

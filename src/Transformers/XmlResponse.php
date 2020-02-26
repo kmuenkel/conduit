@@ -81,7 +81,7 @@ class XmlResponse extends ResponseStruct
      */
     public function has($offset): bool
     {
-        return (bool)$this->get($offset);
+        return (bool)(is_int($offset) ? $this->get($offset) : $this->content->query($offset)->count());
     }
 
     /**

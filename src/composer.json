@@ -19,9 +19,9 @@
     "require": {
         "php": ">=7.0.0",
         "ext-http": "*",
-        "guzzlehttp/guzzle": "~6.0",
+        "guzzlehttp/guzzle": ">=6.0",
         "kmuenkel/handler-stack": "^1.0",
-        "kmuenkel/evaluator": "^1.0"
+        "kmuenkel/rule-evaluator": "^1.0"
     },
     "autoload-dev": {
         "psr-4": {

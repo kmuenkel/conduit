@@ -34,6 +34,13 @@ if (!function_exists('parse_uri')) {
     }
 }
 
+if (!function_exists('has_numeric_keys')) {
+    function has_numeric_keys(array $array)
+    {
+        return ($keys = array_keys($array)) === array_keys($keys);
+    }
+}
+
 if (!function_exists('config')) {
     /**
      * @param string $key

@@ -174,7 +174,7 @@ class GuzzleBridge implements Bridge
     /**
      * @return Request
      */
-    protected function makeRequest()
+    public function makeRequest()
     {
         $method = $this->adapter->getMethod();
         $uri = $this->getBaseUrl().'/'.$this->adapter->getRoute();

@@ -25,7 +25,6 @@ class JsonResponse extends ResponseStruct
      */
     public function __invoke(ResponseInterface $response): ResponseStruct
     {
-        $this->content = (object)[];
         $body = $response->getBody();
         $this->content = json_decode($body);
         if (json_last_error() !== JSON_ERROR_NONE) {
@@ -40,7 +39,7 @@ class JsonResponse extends ResponseStruct
      */
     public function has($offset): bool
     {
-        return property_exists($offset, $this->content);
+        return property_exists($this->content, $offset);
     }
 
     /**

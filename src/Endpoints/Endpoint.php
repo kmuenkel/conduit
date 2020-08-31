@@ -6,11 +6,16 @@ use Exception;
 use Countable;
 use ArrayAccess;
 use IteratorAggregate;
+use GuzzleHttp\Psr7\Uri;
+use Illuminate\Http\Response;
 use Conduit\Adapters\Adapter;
 use InvalidArgumentException;
+use Psr\Http\Message\UriInterface;
 use Conduit\Transformers\ErrorResponse;
 use Psr\Http\Message\ResponseInterface;
 use Conduit\Transformers\ResponseStruct;
+use GuzzleHttp\Psr7\Response as GuzzleResponse;
+use function GuzzleHttp\Psr7\stream_for;
 
 /**
  * Class Endpoint
@@ -130,6 +135,37 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
     }
 
     /**
+     * @param string|UriInterface $uri
+     * @return $this
+     */
+    public function setUrl($uri)
+    {
+        $url = $uri instanceof Uri ? $uri : app(Uri::class, compact('uri'));
+        $this->setProtocol($url->getScheme());
+        $this->setDomain($url->getHost());
+        $this->setRoute($url->getPath());
+        $query = $url->getQuery();
+        parse_str(urldecode($query), $query);
+        /** @var array $query */
+        $this->setQuery($query);
+
+        return $this;
+    }
+
+    /**
+     * @return UriInterface
+     */
+    public function getUrl(): UriInterface
+    {
+        return Uri::fromParts([
+            'scheme' => $this->protocol,
+            'host' => $this->domain,
+            'path' => $this->route,
+            'query' => http_build_query($this->query)
+        ]);
+    }
+
+    /**
      * @param array $middleware
      * @return $this
      */
@@ -205,11 +241,37 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
     }
 
     /**
+     * @param ResponseInterface $rawResponse
      * @return $this
      */
-    public function send()
+    public function setRawResponse(ResponseInterface $rawResponse): self
     {
-        $this->rawResponse = $this->adapter->send();
+        $this->rawResponse = $rawResponse;
+        $this->transformContent();
+
+        return $this;
+    }
+
+    /**
+     * @param string $body
+     * @param int $status
+     * @param array $headers
+     * @return $this
+     */
+    public function makeResponse($body = '', $status = Response::HTTP_OK, array $headers = [])
+    {
+        $body = stream_for($body);
+        $response = app(GuzzleResponse::class, compact('status', 'headers', 'body'));
+        $this->setRawResponse($response);
+
+        return $this;
+    }
+
+    /**
+     * @void
+     */
+    protected function transformContent()
+    {
         $transformer = $this->getTransformer();
 
         try {
@@ -224,6 +286,15 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
 
             $this->responseContent = $newTransformer($this->rawResponse);
         }
+    }
+
+    /**
+     * @return $this
+     */
+    public function send()
+    {
+        $this->rawResponse = $this->adapter->send();
+        $this->transformContent();
 
         return $this;
     }
@@ -382,6 +453,90 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
     }
 
     /**
+     * @param array $headers
+     * @return $this
+     */
+    public function setHeaders(array $headers): self
+    {
+        $this->headers = $headers;
+        $this->adapter->setHeaders($headers);
+
+        return $this;
+    }
+
+    /**
+     * @param array $body
+     * @return $this
+     */
+    public function setBody(array $body): self
+    {
+        $this->body = $body;
+        $this->adapter->setBody($body);
+
+        return $this;
+    }
+
+    /**
+     * @param array $cookies
+     * @return $this
+     */
+    public function setCookies(array $cookies): self
+    {
+        $this->cookies = $cookies;
+        $this->adapter->setCookies($cookies);
+
+        return $this;
+    }
+
+    /**
+     * @param string $domain
+     * @return $this
+     */
+    public function setDomain(string $domain): self
+    {
+        $this->domain = $domain;
+        $this->adapter->setDomain($domain);
+
+        return $this;
+    }
+
+    /**
+     * @param array $query
+     * @return $this
+     */
+    public function setQuery(array $query): self
+    {
+        $this->query = $query;
+        $this->adapter->setQuery($query);
+
+        return $this;
+    }
+
+    /**
+     * @param string $method
+     * @return $this
+     */
+    public function setMethod(string $method): self
+    {
+        $this->method = $method;
+        $this->adapter->setMethod($method);
+
+        return $this;
+    }
+
+    /**
+     * @param string $protocol
+     * @return $this
+     */
+    public function setProtocol(string $protocol): self
+    {
+        $this->protocol = $protocol;
+        $this->setMethod($protocol);
+
+        return $this;
+    }
+
+    /**
      * @param string $method
      * @param array $args
      * @return mixed
@@ -460,11 +615,10 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
     /**
      * @param string|int $name
      * @param mixed $value
-     * @return mixed
      */
     public function __set($name, $value)
     {
-        return $this->offsetSet($name, $value);
+        $this->offsetSet($name, $value);
     }
 
     /**

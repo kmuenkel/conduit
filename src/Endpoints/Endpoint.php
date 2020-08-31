@@ -122,7 +122,6 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
     {
         $serviceName = $this->serviceName ?: config('conduit.default_service');
         $config = config("conduit.services.$serviceName");
-        $this->setMiddleware($this->middleware);
 
         $this->protocol = ($this->protocol ?: $config['protocol']) ?: 'http';
         $this->domain = $this->domain ?: $config['domain'];

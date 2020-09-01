@@ -106,7 +106,7 @@ class GuzzleBridge implements Bridge
     }
 
     /**
-     * @return RequestException|null
+     * @return RequestException|RuntimeException|null
      */
     public function getError(): ?RuntimeException
     {

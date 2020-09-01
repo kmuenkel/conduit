@@ -2,6 +2,7 @@
 
 namespace Conduit\Bridges;
 
+use RuntimeException;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Request;
@@ -54,6 +55,11 @@ class GuzzleBridge implements Bridge
     protected static $keepCookies = true;
 
     /**
+     * @var RequestException|null
+     */
+    protected $error = null;
+
+    /**
      * GuzzleBridge constructor.
      * @param Adapter $adapter
      * @param array $config
@@ -91,11 +97,20 @@ class GuzzleBridge implements Bridge
             $response = $this->client->send($request, $this->options);
         } catch (RequestException $error) {
             $response = $error->getResponse();
+            $this->error = $error;
         }
 
         $this->adapter->setCookies($this->cookies->toArray());
 
         return $response;
+    }
+
+    /**
+     * @return RequestException|null
+     */
+    public function getError(): ?RuntimeException
+    {
+        return $this->error;
     }
 
     /**

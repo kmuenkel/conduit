@@ -24,6 +24,11 @@ class MockBridge extends GuzzleBridge
     protected static $conditionSets = [];
 
     /**
+     * @var null
+     */
+    protected $error = null;
+
+    /**
      * {@inheritDoc}
      */
     public function send()
@@ -32,6 +37,14 @@ class MockBridge extends GuzzleBridge
         $this->adapter->setCookies($this->cookies->toArray());
 
         return $response;
+    }
+
+    /**
+     * @return RequestException|null
+     */
+    public function getError(): ?RuntimeException
+    {
+        return $this->error;
     }
 
     /**

@@ -17,7 +17,7 @@
     ],
     "type": "library",
     "require": {
-        "php": ">=7.1.0",
+        "php": ">=7.2",
         "ext-http": "*",
         "guzzlehttp/guzzle": ">=6.0",
         "kmuenkel/handler-stack": "^1.0",

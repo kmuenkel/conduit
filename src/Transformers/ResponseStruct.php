@@ -23,6 +23,11 @@ abstract class ResponseStruct
     protected $content = null;
 
     /**
+     * @var int
+     */
+    protected static $iteratorFlags = 0;
+
+    /**
      * @param null $contentType
      * @return ResponseStruct
      */
@@ -51,6 +56,14 @@ abstract class ResponseStruct
             default:
                 return app(RawResponse::class);
         }
+    }
+
+    /**
+     * @param $flags
+     */
+    public static function setIteratorFlags($flags)
+    {
+        static::$iteratorFlags = $flags;
     }
 
     /**
@@ -121,4 +134,12 @@ abstract class ResponseStruct
      * @return string
      */
     abstract public function __toString(): string;
+
+    /**
+     * @return array
+     */
+    public function all()
+    {
+        return iterator_to_array($this->iterator());
+    }
 }

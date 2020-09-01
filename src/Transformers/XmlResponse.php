@@ -141,7 +141,9 @@ class XmlResponse extends ResponseStruct
      */
     public function iterator(): ArrayIterator
     {
-        return app(ArrayIterator::class, ['array' => iterator_to_array($this->content->document->childNodes)]);
+        $nodes = $this->content->document->childNodes;
+
+        return app(ArrayIterator::class, ['array' => iterator_to_array($nodes), 'ar_flags' => static::$iteratorFlags]);
     }
 
     /**

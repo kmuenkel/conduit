@@ -10,6 +10,7 @@ use GuzzleHttp\RequestOptions;
 use Conduit\Endpoints\Endpoint;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Cookie\SetCookie;
+use GuzzleHttp\Exception\RequestException;
 
 /**
  * Class GuzzleBridge
@@ -85,7 +86,13 @@ class GuzzleBridge implements Bridge
     public function send()
     {
         $request = $this->makeRequest();
-        $response = $this->client->send($request, $this->options);
+
+        try {
+            $response = $this->client->send($request, $this->options);
+        } catch (RequestException $error) {
+            $response = $error->getResponse();
+        }
+
         $this->adapter->setCookies($this->cookies->toArray());
 
         return $response;

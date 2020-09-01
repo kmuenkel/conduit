@@ -92,6 +92,7 @@ class GuzzleBridge implements Bridge
     public function send()
     {
         $request = $this->makeRequest();
+        $this->error = null;
 
         try {
             $response = $this->client->send($request, $this->options);

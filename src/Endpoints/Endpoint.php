@@ -14,8 +14,9 @@ use Psr\Http\Message\UriInterface;
 use Conduit\Transformers\ErrorResponse;
 use Psr\Http\Message\ResponseInterface;
 use Conduit\Transformers\ResponseStruct;
-use GuzzleHttp\Psr7\Response as GuzzleResponse;
 use function GuzzleHttp\Psr7\stream_for;
+use Conduit\Exceptions\EndpointException;
+use GuzzleHttp\Psr7\Response as GuzzleResponse;
 
 /**
  * Class Endpoint
@@ -114,6 +115,11 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
      * @var string[]|callable[]
      */
     protected $middleware = [];
+
+    /**
+     * @var EndpointException|null
+     */
+    protected $error = null;
 
     /**
      * Endpoint constructor.
@@ -295,7 +301,21 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
         $this->rawResponse = $this->adapter->send();
         $this->transformContent();
 
+        if ($error = $this->adapter->getBridge()->getError()) {
+            $this->error = (new EndpointException($error->getMessage(), $error->getCode(), $error))
+                ->setContent($this->responseContent)
+                ->setRaw($this->rawResponse);
+        }
+
         return $this;
+    }
+
+    /**
+     * @return EndpointException|null
+     */
+    public function getError(): ?EndpointException
+    {
+        return $this->error;
     }
 
     /**

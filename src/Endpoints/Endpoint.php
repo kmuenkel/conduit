@@ -146,8 +146,8 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
     public function setUrl($uri)
     {
         $url = $uri instanceof Uri ? $uri : app(Uri::class, compact('uri'));
-        $this->setProtocol($url->getScheme());
-        $this->setDomain($url->getHost());
+        $url->getScheme() && $this->setProtocol($url->getScheme());
+        $url->getHost() && $this->setDomain($url->getHost());
         $this->setRoute($url->getPath());
         $query = $url->getQuery();
         parse_str(urldecode($query), $query);

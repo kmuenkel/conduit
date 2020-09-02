@@ -550,7 +550,7 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
     public function setProtocol(string $protocol): self
     {
         $this->protocol = $protocol;
-        $this->setMethod($protocol);
+        $this->adapter->setProtocol($protocol);
 
         return $this;
     }

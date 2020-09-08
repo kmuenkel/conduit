@@ -33,7 +33,7 @@ abstract class ResponseStruct
      */
     public static function make($contentType = null)
     {
-        $baseContentType = current(explode('; ', (string)$contentType));
+        $baseContentType = current(explode(';', (string)$contentType));
         if ($contentType && array_key_exists($contentType, self::$responseStructs)) {
             return self::$responseStructs[$contentType];
         } elseif ($baseContentType && array_key_exists($baseContentType, self::$responseStructs)) {

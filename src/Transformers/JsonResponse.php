@@ -83,7 +83,7 @@ class JsonResponse extends ResponseStruct
      */
     public function iterator(): ArrayIterator
     {
-        return app(ArrayIterator::class, ['array' => (array)$this->content, 'ar_flags' => static::$iteratorFlags]);
+        return new ArrayIterator((array)$this->content, static::$iteratorFlags);
     }
 
     /**

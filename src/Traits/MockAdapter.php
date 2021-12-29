@@ -2,11 +2,11 @@
 
 namespace Conduit\Traits;
 
-use Conduit\Adapters\Adapter;
-use Conduit\Bridges\MockBridge;
 use GuzzleHttp\Client;
 use Conduit\Bridges\Bridge;
 use GuzzleHttp\HandlerStack;
+use Conduit\Adapters\Adapter;
+use Conduit\Bridges\MockBridge;
 use Conduit\Bridges\GuzzleBridge;
 use GuzzleHttp\Handler\MockHandler;
 use Illuminate\Contracts\Container\Container;

@@ -1,11 +1,9 @@
 <?php
 
+use GuzzleHttp\Psr7\Request;
 use Conduit\Adapters\Adapter;
-use Conduit\Transformers\ResponseStruct;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Cookie\SetCookie;
-use GuzzleHttp\Psr7\Request;
-use http\QueryString;
 use Psr\Http\Message\ResponseInterface;
 
 if (!function_exists('parse_uri')) {
@@ -22,7 +20,7 @@ if (!function_exists('parse_uri')) {
             $query = [];
             parse_str(urldecode($parts['query']), $query);
             $parts['query'] = $query;
-            $queryString .= '?'.urldecode(app(QueryString::class)->set($parts['query'])->toString());
+            $queryString .= '?'.urldecode(http_build_query($parts['query']));
         }
 
         $parts['full'] = (isset($parts['scheme']) ? $parts['scheme'].'://' : '')

@@ -11,6 +11,7 @@ use Illuminate\Http\Response;
 use Conduit\Adapters\Adapter;
 use InvalidArgumentException;
 use Psr\Http\Message\UriInterface;
+use Conduit\Transformers\JsonResponse;
 use Conduit\Transformers\ErrorResponse;
 use Psr\Http\Message\ResponseInterface;
 use Conduit\Transformers\ResponseStruct;
@@ -92,6 +93,11 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
     protected $cookies = [];
 
     /**
+     * @var array
+     */
+    protected $params = [];
+
+    /**
      * @var string
      */
     protected $transformerName;
@@ -126,8 +132,16 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
      */
     public function __construct()
     {
-        $serviceName = $this->serviceName ?: config('conduit.default_service');
-        $config = config("conduit.services.$serviceName");
+        $config = config('conduit.services.'.($this->serviceName ?: config('conduit.default_service')));
+        $localPartsSet = $this->protocol || $this->domain;
+        $configPartsSet = isset($config['protocol']) || isset($config['domain']);
+        $configUrl = $config['url'] ?? null;
+
+        if (!$localPartsSet && !$configPartsSet && $configUrl) {
+            $configUrl = parse_url($configUrl);
+            $this->protocol = $configUrl['scheme'] ?? null;
+            $this->domain = $configUrl['host'] ?? null;
+        }
 
         $this->protocol = ($this->protocol ?: $config['protocol']) ?: 'http';
         $this->domain = $this->domain ?: $config['domain'];
@@ -137,6 +151,17 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
 
         $this->setTransformer();
         $this->setErrorTransformer();
+    }
+
+    /**
+     * @param array $params
+     * @return $this
+     */
+    public function setParams(array $params): self
+    {
+        $this->params = $params;
+
+        return $this;
     }
 
     /**
@@ -291,6 +316,22 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
 
             $this->responseContent = $newTransformer($this->rawResponse);
         }
+
+        $responseContent = $this->getResponseContent();
+
+        if (!($responseContent instanceof JsonResponse) || !array_is_numeric($content = $responseContent->all())) {
+            return;
+        }
+
+        $response = $this->getAdapter()->getResponse();
+
+        foreach ($content as $index => $result) {
+            $response = new GuzzleResponse($response->getStatusCode(), $response->getHeaders(), json_encode($result));
+            $nested = (clone $this)->setRawResponse($response);
+            $responseContent->set($index, $nested);
+        }
+
+        $this->responseContent = $responseContent;
     }
 
     /**
@@ -298,6 +339,15 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
      */
     public function send()
     {
+        foreach ($this->params as $name => $param) {
+            $param = is_bool($param) ? (int)$param : $param;
+            $this->route = preg_replace('/{'.preg_quote($name).'}/', (string)$param, $this->route);
+        }
+
+        $this->route = preg_replace('/{.+?}/', '', $this->route);
+        $adapter = $this->newAdapterInstance();
+        $this->setAdapter($adapter);
+
         $this->rawResponse = $this->adapter->send();
         $this->transformContent();
 

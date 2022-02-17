@@ -165,6 +165,26 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
     }
 
     /**
+     * @return array
+     */
+    public function getParams(): array
+    {
+        return $this->params;
+    }
+
+    /**
+     * @param string $name
+     * @param $param
+     * @return $this
+     */
+    public function setParam(string $name, $param): self
+    {
+        $this->params[$name] = $param;
+
+        return $this;
+    }
+
+    /**
      * @param string|UriInterface $uri
      * @return $this
      */

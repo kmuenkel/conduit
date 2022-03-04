@@ -2,6 +2,7 @@
 
 namespace Conduit\Adapters;
 
+use DateTime;
 use Conduit\Bridges\Bridge;
 use InvalidArgumentException;
 use HandlerStack\Traits\HandlerStack;
@@ -86,6 +87,16 @@ class Adapter
      * @var array
      */
     protected $cookies = [];
+
+    /**
+     * @var DateTime|null
+     */
+    protected ?DateTime $sentAt = null;
+
+    /**
+     * @var DateTime|null
+     */
+    protected ?DateTime $receivedAt = null;
 
     /**
      * Adapter constructor.
@@ -307,7 +318,9 @@ class Adapter
          * @return ResponseInterface
          */
         $final = function (Adapter $adapter) {
+            $this->sentAt = new DateTime();
             $results = $adapter->getBridge()->send();
+            $this->receivedAt = new DateTime();
 
             return $results;
         };
@@ -332,6 +345,22 @@ class Adapter
         $this->response = $response;
 
         return $this;
+    }
+
+    /**
+     * @return DateTime|null
+     */
+    public function getSentAt(): ?DateTime
+    {
+        return $this->sentAt;
+    }
+
+    /**
+     * @return DateTime|null
+     */
+    public function getReceivedAt(): ?DateTime
+    {
+        return $this->receivedAt;
     }
 
     /**

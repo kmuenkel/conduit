@@ -141,6 +141,7 @@ if (!function_exists('parse_adapter_request')) {
     function parse_adapter_request(Adapter $adapter)
     {
         $request = [
+            'sent_at' => ($sentAt = $adapter->getSentAt()) ? $sentAt->format('c') : null,
             'method' => $adapter->getMethod(),
             'protocol' => $adapter->getProtocol(),
             'domain' => $adapter->getDomain(),
@@ -192,6 +193,7 @@ if (!function_exists('parse_adapter_response')) {
     {
         if (!($response = $adapter->getResponse())) {
             return [
+                'received_at' => null,
                 'code' => 0,
                 'headers' => [],
                 'cookies' => [],
@@ -219,6 +221,7 @@ if (!function_exists('parse_adapter_response')) {
         $body = (string)$response->getBody();
 
         $response = [
+            'received_at' => ($receivedAt = $adapter->getReceivedAt()) ? $receivedAt->format('c') : null,
             'code' => $response->getStatusCode(),
             'headers' => $headers,
             'cookies' => $cookies,

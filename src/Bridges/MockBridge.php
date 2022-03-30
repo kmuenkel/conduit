@@ -6,6 +6,7 @@ use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Cookie\SetCookie;
 use GuzzleHttp\Cookie\CookieJar;
 use Evaluator\Parsers\ConfigParser;
+use GuzzleHttp\Exception\RequestException;
 
 /**
  * Class MockBridge
@@ -19,22 +20,30 @@ class MockBridge extends GuzzleBridge
     protected static $responses = [];
 
     /**
+     * @var callable[]
+     */
+    protected static $events = [];
+
+    /**
      * @var array[]
      */
     protected static $conditionSets = [];
 
     /**
-     * @var null
+     * @var RequestException|null
      */
-    protected $error = null;
+    protected ?RequestException $error = null;
 
     /**
      * {@inheritDoc}
      */
     public function send()
     {
-        $response = $this->findResponse();
+        $responseIndex = $this->findResponse();
+        $response = is_null($responseIndex) ? $this->makeRequest() : static::$responses[$responseIndex];
         $this->adapter->setCookies($this->cookies->toArray());
+        $this->adapter->setResponse($response);
+        static::$events[$responseIndex]($this->adapter);
 
         return $response;
     }
@@ -42,7 +51,7 @@ class MockBridge extends GuzzleBridge
     /**
      * @return RequestException|null
      */
-    public function getError(): ?RuntimeException
+    public function getError(): ?RequestException
     {
         return $this->error;
     }
@@ -50,15 +59,17 @@ class MockBridge extends GuzzleBridge
     /**
      * @param Response $response
      * @param array $conditions
+     * @param callable|null $event
      */
-    public static function setUpResponse(Response $response, array $conditions)
+    public static function setUpResponse(Response $response, array $conditions, callable $event = null)
     {
         $conditions['all'] = [
             'comparator' => 'all',
             'value2' => array_keys($conditions)
         ];
-        self::$conditionSets[] = self::normalizeConditions($conditions);
-        self::$responses[] = $response;
+        static::$conditionSets[] = static::normalizeConditions($conditions);
+        static::$responses[] = $response;
+        static::$events[] = $event ?: fn () => null;
     }
 
     /**
@@ -68,7 +79,7 @@ class MockBridge extends GuzzleBridge
      * @param CookieJar|string[]|SetCookie[] $cookies
      * @return Response
      */
-    public static function makeResponse($status = 200, $headers = [], $body = null, $cookies = [])
+    public static function makeResponse($status = 200, $headers = [], $body = null, $cookies = []): Response
     {
         $cookies = normalize_cookies($cookies);
         /** @var SetCookie $cookie */
@@ -85,7 +96,7 @@ class MockBridge extends GuzzleBridge
      * @param array $conditions
      * @return array
      */
-    protected static function normalizeConditions(array $conditions)
+    protected static function normalizeConditions(array $conditions): array
     {
         $reservedKeys = [
             'reference1',
@@ -116,20 +127,20 @@ class MockBridge extends GuzzleBridge
     }
 
     /**
-     * @return Response
+     * @return ?int
      */
-    public function findResponse()
+    public function findResponse(): ?int
     {
         $data = parse_adapter_request($this->adapter);
         $evaluator = app(ConfigParser::class, compact('data'));
 
-        foreach (self::$conditionSets as $index => $conditions) {
+        foreach (static::$conditionSets as $index => $conditions) {
             $evaluator->setRules($conditions);
             if ($evaluator->evaluate('all')) {
-                return self::$responses[$index];
+                return $index;
             }
         }
 
-        return $this->makeResponse();
+        return null;
     }
 }

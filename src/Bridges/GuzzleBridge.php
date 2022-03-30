@@ -3,15 +3,12 @@
 namespace Conduit\Bridges;
 
 use RuntimeException;
-use GuzzleHttp\Client;
-use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Request;
 use Conduit\Adapters\Adapter;
-use GuzzleHttp\RequestOptions;
 use Conduit\Endpoints\Endpoint;
-use GuzzleHttp\Cookie\CookieJar;
-use GuzzleHttp\Cookie\SetCookie;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Cookie\{CookieJar, SetCookie};
+use GuzzleHttp\{Client, HandlerStack, RequestOptions};
 
 /**
  * Class GuzzleBridge
@@ -22,42 +19,42 @@ class GuzzleBridge implements Bridge
     /**
      * @var Adapter
      */
-    protected $adapter;
+    protected Adapter $adapter;
 
     /**
      * @var Client
      */
-    protected $client;
+    protected Client $client;
 
     /**
      * @var array
      */
-    protected $options = [];
+    protected array $options = [];
 
     /**
      * @var array
      */
-    protected $config = [];
+    protected array $config = [];
 
     /**
      * @var CookieJar
      */
-    protected $cookies;
+    protected CookieJar $cookies;
 
     /**
      * @var CookieJar|null
      */
-    protected static $permanentCookies = null;
+    protected static ?CookieJar $permanentCookies = null;
 
     /**
      * @var bool
      */
-    protected static $keepCookies = true;
+    protected static bool $keepCookies = true;
 
     /**
      * @var RequestException|null
      */
-    protected $error = null;
+    protected ?RequestException $error = null;
 
     /**
      * GuzzleBridge constructor.

@@ -163,11 +163,21 @@ if (!function_exists('normalize_cookies')) {
      * @param bool $strictMode
      * @return CookieJar
      */
-    function normalize_cookies($cookies, $strictMode = false)
+    function normalize_cookies($cookies, bool $strictMode = false): CookieJar
     {
         if (!($cookies instanceof CookieJar)) {
             foreach ($cookies as $index => $cookie) {
                 if (is_string($cookie)) {
+                    if (is_string($index)) {
+                        $cookies[$index] = app(SetCookie::class, ['data' => [
+                            'Name' => $index,
+                            'Value' => $cookie,
+                            'Domain' => parse_url(config('app.url'))['host']
+                        ]]);
+
+                        continue;
+                    }
+
                     $cookies[$index] = SetCookie::fromString($cookie);
                 } elseif (is_array($cookie)) {
                     $cookies[$index] = app(SetCookie::class, ['data' => $cookie]);

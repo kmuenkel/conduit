@@ -40,10 +40,10 @@ class MockBridge extends GuzzleBridge
     public function send()
     {
         $responseIndex = $this->findResponse();
-        $response = is_null($responseIndex) ? $this->makeRequest() : static::$responses[$responseIndex];
+        $response = is_null($responseIndex) ? $this->makeResponse() : static::$responses[$responseIndex];
         $this->adapter->setCookies($this->cookies->toArray());
         $this->adapter->setResponse($response);
-        static::$events[$responseIndex]($this->adapter);
+        !is_null($responseIndex) && static::$events[$responseIndex]($this->adapter);
 
         return $response;
     }
@@ -82,6 +82,12 @@ class MockBridge extends GuzzleBridge
     public static function makeResponse($status = 200, $headers = [], $body = null, $cookies = []): Response
     {
         $cookies = normalize_cookies($cookies);
+
+        if ($cookies instanceof CookieJar) {
+            $cookieNames = array_column($cookies->toArray(), 'Name');
+            $cookies = array_map(fn (string $name) => $cookies->getCookieByName($name), $cookieNames);
+        }
+
         /** @var SetCookie $cookie */
         foreach ($cookies as $cookie) {
             $headers['set-cookie'][] = (string)$cookie;

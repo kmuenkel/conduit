@@ -73,6 +73,14 @@ class MockBridge extends GuzzleBridge
     }
 
     /**
+     * @return void
+     */
+    public static function resetResponses()
+    {
+        static::$conditionSets = static::$responses = static::$events = [];
+    }
+
+    /**
      * @param int $status
      * @param array $headers
      * @param string|mixed|null $body

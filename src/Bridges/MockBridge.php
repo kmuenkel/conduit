@@ -3,10 +3,9 @@
 namespace Conduit\Bridges;
 
 use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\Cookie\SetCookie;
-use GuzzleHttp\Cookie\CookieJar;
 use Evaluator\Parsers\ConfigParser;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Cookie\{SetCookie, CookieJar};
 
 /**
  * Class MockBridge
@@ -17,7 +16,7 @@ class MockBridge extends GuzzleBridge
     /**
      * @var Response[]
      */
-    protected static $responses = [];
+    public static $responses = [];
 
     /**
      * @var callable[]
@@ -156,5 +155,45 @@ class MockBridge extends GuzzleBridge
         }
 
         return null;
+    }
+
+    /**
+     * @return array
+     */
+    public function __serialize(): array
+    {
+        return [
+            'this' => get_object_vars($this),
+            'static' => [
+                'responses' => array_map(function (Response $response) {
+                    return [
+                        'status' => $response->getStatusCode(),
+                        'headers' => $response->getHeaders(),
+                        'body' => (string)$response->getBody()
+                    ];
+                }, static::$responses),
+                'events' => array_map('\Opis\Closure\serialize', static::$events),
+                'conditionSets' => static::$conditionSets,
+                'permanentCookies' => static::$permanentCookies,
+                'keepCookies' => static::$keepCookies
+            ]
+        ];
+    }
+
+    /**
+     * @param array $data
+     * @return void
+     */
+    public function __unserialize(array $data): void
+    {
+        array_map(fn ($property, string $name) => $this->$name = $property, $data['this'], array_keys($data['this']));
+
+        static::$responses = array_map(function (array $response) {
+            return static::makeResponse($response['status'], $response['headers'], $response['body']);
+        }, $data['static']['responses']);
+        static::$events = array_map('\Opis\Closure\unserialize', $data['static']['events']);
+        static::$conditionSets = $data['static']['conditionSets'];
+        static::$permanentCookies = $data['static']['permanentCookies'];
+        static::$keepCookies = $data['static']['keepCookies'];
     }
 }

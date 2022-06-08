@@ -116,7 +116,7 @@ class Adapter
     {
         $bridgeConfig = config("conduit.bridges.$this->bridgeName");
         $config = $bridgeConfig['config'] ?? [];
-        $bridge = app($bridgeConfig['bridge'], ['adapter' => $this, 'config' => $config]);
+        $bridge = new $bridgeConfig['bridge']($this, $config);
 
         if (!$bridge instanceof Bridge) {
             throw new InvalidArgumentException("Bridge must be an instance of '".Bridge::class."'."

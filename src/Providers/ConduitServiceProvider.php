@@ -61,7 +61,7 @@ class ConduitServiceProvider extends ServiceProvider
         /**
          * @param Adapter $adapter
          */
-        $logger = function (Adapter $adapter) use ($app) {
+        $logger = function (Adapter $adapter) {
             $request = parse_adapter_request($adapter);
             $response = parse_adapter_response($adapter);
             $truncate = LoggingMiddleware::getTruncate();
@@ -70,7 +70,7 @@ class ConduitServiceProvider extends ServiceProvider
                 $response['body'] = substr($response['body'], 0, $truncate).'...';
             }
 
-            $app->make('log')->debug(print_r(compact('request', 'response'), true));
+            app('log')->debug(print_r(compact('request', 'response'), true));
         };
 
         $loggingMiddleware = app(LoggingMiddleware::class, compact('logger'));
@@ -89,18 +89,17 @@ class ConduitServiceProvider extends ServiceProvider
          * @param callable $next
          * @return ResponseInterface
          */
-        $eventMiddleware = function (Adapter $adapter, callable $next) use ($app) {
-            $app->make('events')->dispatch('transmission-sending', $adapter);
+        $eventMiddleware = function (Adapter $adapter, callable $next): ResponseInterface {
+            app('events')->dispatch('transmission-sending', $adapter);
 
-            $results = null;
             try {
                 return $next($adapter);
             } catch (Exception $error) {
-                $app->make('events')->dispatch('transmission-failed', $adapter);
+                app('events')->dispatch('transmission-failed', $adapter);
 
                 throw $error;
             } finally {
-                $app->make('events')->dispatch('transmission-sent', $adapter);
+                app('events')->dispatch('transmission-sent', $adapter);
             }
         };
 

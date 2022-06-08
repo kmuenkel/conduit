@@ -21,7 +21,8 @@
         "guzzlehttp/guzzle": ">=6.0",
         "kmuenkel/handler-stack": "^1.0",
         "kmuenkel/rule-evaluator": "^1.0",
-        "ext-json": "*"
+        "ext-json": "*",
+        "opis/closure": "^3.6|^4.0"
     },
     "autoload-dev": {
         "psr-4": {

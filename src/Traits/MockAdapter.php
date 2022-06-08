@@ -49,16 +49,21 @@ trait MockAdapter
             return new Client(...$args);
         });
 
-        $app->bind(GuzzleBridge::class, function (Application $app, array $args = []) use ($bridge) {
-            return $bridge;
+        $app->bind(GuzzleBridge::class, function (Application $app, array $args = []) use ($handler) {
+            $args = compile_arguments(GuzzleBridge::class, $args);
+            $args = array_values($args);
+            $args[0] = $args[0] ?? new Adapter;
+
+            return (new MockBridge(...$args))->setHandler($handler);
         });
 
-        $app->bind(Adapter::class, function (Application $app, array $args = []) use ($middleware) {
+        $mockBridge = app(MockBridge::class);   //This may seem unnecessary, but it's needed in case of serialization
+        $app->bind(Adapter::class, function (Application $app, array $args = []) use ($middleware, $mockBridge) {
             $args = compile_arguments(Adapter::class, $args);
             $args = array_values($args);
             $adapter = (new Adapter(...$args))->setHandlers($middleware);
 
-            $mockBridge = app(MockBridge::class, compact('adapter'));
+            $mockBridge->setAdapter($adapter);
             $adapter->setBridge($mockBridge);
 
             return $adapter;

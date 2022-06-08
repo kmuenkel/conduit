@@ -22,7 +22,7 @@
         "kmuenkel/handler-stack": "^1.0",
         "kmuenkel/rule-evaluator": "^1.0",
         "ext-json": "*",
-        "opis/closure": "^3.6|^4.0"
+        "opis/closure": "^3.6"
     },
     "autoload-dev": {
         "psr-4": {

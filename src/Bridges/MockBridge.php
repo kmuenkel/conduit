@@ -16,7 +16,7 @@ class MockBridge extends GuzzleBridge
     /**
      * @var Response[]
      */
-    public static $responses = [];
+    protected static $responses = [];
 
     /**
      * @var callable[]

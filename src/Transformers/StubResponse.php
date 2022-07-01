@@ -61,7 +61,7 @@ trait StubResponse
      */
     public function iterator(): ArrayIterator
     {
-        return app(ArrayIterator::class, ['array' => [], 'ar_flags' => static::$iteratorFlags]);
+        return new ArrayIterator([], static::$iteratorFlags);
     }
 
     /**

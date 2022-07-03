@@ -3,13 +3,10 @@
 namespace Conduit\Exceptions;
 
 use RuntimeException;
+use Conduit\Adapters\Adapter;
 use Psr\Http\Message\ResponseInterface;
 use Conduit\Transformers\ResponseStruct;
 
-/**
- * Class EndpointException
- * @package Conduit\Exceptions
- */
 class EndpointException extends RuntimeException
 {
     /**
@@ -23,12 +20,28 @@ class EndpointException extends RuntimeException
     protected $rawContent = null;
 
     /**
+     * @var Adapter|null
+     */
+    protected ?Adapter $adapter = null;
+
+    /**
      * @param ResponseStruct $content
      * @return $this
      */
     public function setContent(ResponseStruct $content)
     {
         $this->content = $content;
+
+        return $this;
+    }
+
+    /**
+     * @param Adapter|null $adapter
+     * @return $this
+     */
+    public function setAdapter(?Adapter $adapter): self
+    {
+        $this->adapter = $adapter;
 
         return $this;
     }
@@ -58,5 +71,13 @@ class EndpointException extends RuntimeException
     public function getRaw(): ?ResponseInterface
     {
         return $this->rawContent;
+    }
+
+    /**
+     * @return Adapter|null
+     */
+    public function getAdapter(): ?Adapter
+    {
+        return $this->adapter;
     }
 }

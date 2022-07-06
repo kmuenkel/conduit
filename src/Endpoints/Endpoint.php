@@ -131,8 +131,9 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
      * @param string $bridgeName
      * @param array $config
      */
-    public function __construct(string $bridgeName, array $config = [])
+    public function __construct(string $bridgeName = '', array $config = [])
     {
+        $bridgeName = $bridgeName ?: config('conduit.default_bridge');
         $config = $config ?: config('conduit.services.'.($this->serviceName ?: config('conduit.default_service')));
         $localPartsSet = $this->protocol || $this->domain;
         $configPartsSet = isset($config['protocol']) || isset($config['domain']);

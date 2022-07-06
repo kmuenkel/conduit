@@ -2,7 +2,7 @@
 
 namespace Conduit\Transformers;
 
-use StdClass;
+use stdClass;
 use JsonException;
 use ArrayIterator;
 use Psr\Http\Message\ResponseInterface;
@@ -26,7 +26,7 @@ class JsonResponse extends ResponseStruct
     public function __invoke(ResponseInterface $response): ResponseStruct
     {
         $body = $response->getBody();
-        $this->content = json_decode($body);
+        $this->content = json_decode($body) ?: new stdClass;
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new JsonException(json_last_error_msg());
         }

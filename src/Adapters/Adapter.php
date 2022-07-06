@@ -36,42 +36,42 @@ class Adapter
     /**
      * @var ResponseInterface|null
      */
-    protected $response = null;
+    protected ?ResponseInterface $response = null;
 
     /**
      * @var string|null
      */
-    protected $bridgeName = null;
+    protected ?string $bridgeName = null;
 
     /**
-     * @var Bridge
+     * @var Bridge|null
      */
-    protected $bridge;
-
-    /**
-     * @var string
-     */
-    protected $protocol = self::PROTOCOLS[0];
+    protected ?Bridge $bridge = null;
 
     /**
      * @var string
      */
-    protected $domain;
+    protected string $protocol = self::PROTOCOLS[0];
 
     /**
      * @var string
      */
-    protected $route = '/';
+    protected string $domain = '';
 
     /**
      * @var string
      */
-    protected $method = self::METHODS[0];
+    protected string $route = '/';
+
+    /**
+     * @var string
+     */
+    protected string $method = self::METHODS[0];
 
     /**
      * @var array
      */
-    protected $query = [];
+    protected array $query = [];
 
     /**
      * @var mixed|array
@@ -81,12 +81,12 @@ class Adapter
     /**
      * @var array
      */
-    protected $headers = [];
+    protected array $headers = [];
 
     /**
      * @var array
      */
-    protected $cookies = [];
+    protected array $cookies = [];
 
     /**
      * @var DateTime|null
@@ -99,22 +99,23 @@ class Adapter
     protected ?DateTime $receivedAt = null;
 
     /**
-     * Adapter constructor.
      * @param string|null $bridgeName
+     * @param array $config
      */
-    public function __construct($bridgeName = null)
+    public function __construct(string $bridgeName = null, array $config = [])
     {
         $this->bridgeName = $bridgeName ?: ($this->bridgeName ?: config('conduit.default_bridge'));
-        $bridge = $this->newBridgeInstance();
+        $bridge = $this->newBridgeInstance($config);
         $this->setBridge($bridge);
     }
 
     /**
+     * @param array $bridgeConfig
      * @return Bridge
      */
-    public function newBridgeInstance()
+    public function newBridgeInstance(array $bridgeConfig = []): Bridge
     {
-        $bridgeConfig = config("conduit.bridges.$this->bridgeName");
+        $bridgeConfig = $bridgeConfig ?: config("conduit.bridges.$this->bridgeName");
         $config = $bridgeConfig['config'] ?? [];
         $bridge = new $bridgeConfig['bridge']($this, $config);
 
@@ -130,7 +131,7 @@ class Adapter
      * @param Bridge $bridge
      * @return $this
      */
-    public function setBridge(Bridge $bridge): Adapter
+    public function setBridge(Bridge $bridge): self
     {
         $this->bridge = $bridge;
 
@@ -140,16 +141,16 @@ class Adapter
     /**
      * @return Bridge|null
      */
-    public function getBridge()
+    public function getBridge(): ?Bridge
     {
         return $this->bridge;
     }
 
     /**
      * @param string $protocol
-     * @return Adapter
+     * @return $this
      */
-    public function setProtocol(string $protocol): Adapter
+    public function setProtocol(string $protocol): self
     {
         $protocol = strtolower($protocol);
         if (!in_array($protocol, self::PROTOCOLS)) {
@@ -165,7 +166,7 @@ class Adapter
      * @param string $method
      * @return $this
      */
-    public function setMethod(string $method): Adapter
+    public function setMethod(string $method): self
     {
         $method = strtoupper($method);
         if (!in_array($method, self::METHODS)) {
@@ -188,16 +189,16 @@ class Adapter
     /**
      * @return string
      */
-    public function getProtocol()
+    public function getProtocol(): string
     {
         return $this->protocol;
     }
 
     /**
      * @param string $domain
-     * @return Adapter
+     * @return $this
      */
-    public function setDomain(string $domain): Adapter
+    public function setDomain(string $domain): self
     {
         $this->domain = $domain;
 
@@ -207,16 +208,16 @@ class Adapter
     /**
      * @return string
      */
-    public function getDomain()
+    public function getDomain(): string
     {
         return $this->domain;
     }
 
     /**
      * @param string $route
-     * @return Adapter
+     * @return $this
      */
-    public function setRoute(string $route): Adapter
+    public function setRoute(string $route): self
     {
         $this->route = $route;
 
@@ -233,9 +234,9 @@ class Adapter
 
     /**
      * @param array $query
-     * @return Adapter
+     * @return $this
      */
-    public function setQuery(array $query)
+    public function setQuery(array $query): self
     {
         $this->query = $query;
 
@@ -245,7 +246,7 @@ class Adapter
     /**
      * @return array
      */
-    public function getQuery()
+    public function getQuery(): array
     {
         return $this->query;
     }
@@ -254,7 +255,7 @@ class Adapter
      * @param mixed|array $body
      * @return $this
      */
-    public function setBody($body)
+    public function setBody($body): self
     {
         $this->body = $body;
 
@@ -293,7 +294,7 @@ class Adapter
      * @param array $cookies
      * @return $this
      */
-    public function setCookies(array $cookies)
+    public function setCookies(array $cookies): self
     {
         $this->cookies = $cookies;
 
@@ -311,7 +312,7 @@ class Adapter
     /**
      * @return ResponseInterface
      */
-    public function send()
+    public function send(): ResponseInterface
     {
         /**
          * @param Adapter $adapter
@@ -331,7 +332,7 @@ class Adapter
     /**
      * @return ResponseInterface|null
      */
-    public function getResponse()
+    public function getResponse(): ?ResponseInterface
     {
         return $this->response;
     }
@@ -340,7 +341,7 @@ class Adapter
      * @param ResponseInterface $response
      * @return $this
      */
-    public function setResponse(ResponseInterface $response)
+    public function setResponse(ResponseInterface $response): self
     {
         $this->response = $response;
 

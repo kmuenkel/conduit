@@ -33,106 +33,107 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
     const CONTENT_TYPE_HTML = 'text/html';
 
     /**
-     * @var Adapter
+     * @var Adapter|null
      */
-    protected $adapter;
+    protected ?Adapter $adapter = null;
 
     /**
-     * @var ResponseInterface
+     * @var ResponseInterface|null
      */
-    protected $rawResponse = null;
+    protected ?ResponseInterface $rawResponse = null;
 
     /**
-     * @var ResponseStruct
+     * @var ResponseStruct|null
      */
-    protected $responseContent = null;
-
-    /**
-     * @var string|null
-     */
-    protected $serviceName = null;
+    protected ?ResponseStruct $responseContent = null;
 
     /**
      * @var string
      */
-    protected $protocol;
+    protected string $serviceName = '';
 
     /**
      * @var string
      */
-    protected $domain;
+    protected string $protocol = '';
 
     /**
      * @var string
      */
-    protected $route = '/';
+    protected string $domain = '';
 
     /**
      * @var string
      */
-    protected $method = 'GET';
+    protected string $route = '/';
+
+    /**
+     * @var string
+     */
+    protected string $method = 'GET';
 
     /**
      * @var array
      */
-    protected $query = [];
+    protected array $query = [];
 
     /**
      * @var array
      */
-    protected $body = [];
+    protected array $body = [];
 
     /**
      * @var array
      */
-    protected $headers = [];
+    protected array $headers = [];
 
     /**
      * @var array
      */
-    protected $cookies = [];
+    protected array $cookies = [];
 
     /**
      * @var array
      */
-    protected $params = [];
+    protected array $params = [];
 
     /**
      * @var string
      */
-    protected $transformerName;
+    protected string $transformerName = '';
 
     /**
-     * @var ResponseStruct
+     * @var ResponseStruct|null
      */
-    protected $transformer;
+    protected ?ResponseStruct $transformer = null;
 
     /**
      * @var string
      */
-    protected $errorTransformerName;
+    protected string $errorTransformerName = '';
 
     /**
-     * @var ErrorResponse
+     * @var ErrorResponse|null
      */
-    protected $errorTransformer;
+    protected ?ErrorResponse $errorTransformer = null;
 
     /**
      * @var string[]|callable[]
      */
-    protected $middleware = [];
+    protected array $middleware = [];
 
     /**
      * @var EndpointException|null
      */
-    protected $error = null;
+    protected ?EndpointException $error = null;
 
     /**
-     * Endpoint constructor.
+     * @param string $bridgeName
+     * @param array $config
      */
-    public function __construct()
+    public function __construct(string $bridgeName, array $config = [])
     {
-        $config = config('conduit.services.'.($this->serviceName ?: config('conduit.default_service')));
+        $config = $config ?: config('conduit.services.'.($this->serviceName ?: config('conduit.default_service')));
         $localPartsSet = $this->protocol || $this->domain;
         $configPartsSet = isset($config['protocol']) || isset($config['domain']);
         $configUrl = $config['url'] ?? null;
@@ -146,7 +147,7 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
         $this->protocol = ($this->protocol ?: $config['protocol']) ?: 'http';
         $this->domain = $this->domain ?: $config['domain'];
 
-        $adapter = $this->newAdapterInstance();
+        $adapter = $this->adapter ?: $this->newAdapterInstance($bridgeName, $config);
         $this->setAdapter($adapter);
 
         $this->setTransformer();
@@ -188,7 +189,7 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
      * @param string|UriInterface $uri
      * @return $this
      */
-    public function setUrl($uri)
+    public function setUrl($uri): self
     {
         $url = $uri instanceof Uri ? $uri : app(Uri::class, compact('uri'));
         $url->getScheme() && $this->setProtocol($url->getScheme());
@@ -219,7 +220,7 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
      * @param array $middleware
      * @return $this
      */
-    public function setMiddleware(array $middleware)
+    public function setMiddleware(array $middleware): self
     {
         $this->middleware = [];
         foreach ($middleware as $name => $middlewareItem) {
@@ -239,7 +240,7 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
      * @param string|null $name
      * @return $this
      */
-    public function addMiddleware(callable $middleware, $name = null)
+    public function addMiddleware(callable $middleware, string $name = null): self
     {
         $name = $name ?: count($this->middleware);
         $this->middleware[$name] = $middleware;
@@ -251,30 +252,32 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
     /**
      * @return callable[]
      */
-    public function getMiddleware()
+    public function getMiddleware(): array
     {
         return $this->middleware;
     }
 
     /**
      * @param string|null $bridgeName
+     * @param array $config
      * @return Adapter
      */
-    public function newAdapterInstance($bridgeName = null)
+    public function newAdapterInstance(string $bridgeName = null, array $config = []): Adapter
     {
-        $adapter = app(Adapter::class, compact('bridgeName'))
+        $defaultHandlers = $this->adapter ? $this->adapter->getHandlers() : [];
+
+        /** @var Adapter $adapter */
+        $adapter = ($this->adapter ? clone $this->adapter : app(Adapter::class, compact('bridgeName', 'config')))
             ->setMethod($this->getMethod())
-            ->setProtocol($this->getProtocol())
-            ->setDomain($this->getDomain())
             ->setRoute($this->getRoute())
             ->setQuery($this->getQuery())
             ->setBody($this->getBody())
             ->setHeaders($this->getHeaders())
             ->setCookies($this->getCookies());
 
-        foreach ($this->getMiddleware() as $middleware) {
-            $adapter->pushHandler($middleware);
-        }
+        $this->getProtocol() && $adapter->setProtocol($this->getProtocol());
+        $this->getDomain() && $adapter->setDomain($this->getDomain());
+        $adapter->setHandlers(array_merge($defaultHandlers, $this->getMiddleware()));
 
         return $adapter;
     }
@@ -283,7 +286,7 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
      * @param Adapter $adapter
      * @return $this
      */
-    public function setAdapter(Adapter $adapter)
+    public function setAdapter(Adapter $adapter): self
     {
         $this->adapter = $adapter;
 
@@ -308,7 +311,7 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
      * @param array $headers
      * @return $this
      */
-    public function makeResponse($body = '', $status = Response::HTTP_OK, array $headers = [])
+    public function makeResponse(string $body = '', $status = Response::HTTP_OK, array $headers = []): self
     {
         $body = stream_for($body);
         $response = app(GuzzleResponse::class, compact('status', 'headers', 'body'));
@@ -338,8 +341,9 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
         }
 
         $responseContent = $this->getResponseContent();
+        $arrayIsNumeric = fn (array $array): bool => ($keys = array_keys($array)) === array_keys($keys);
 
-        if (!($responseContent instanceof JsonResponse) || !array_is_numeric($content = $responseContent->all())) {
+        if (!($responseContent instanceof JsonResponse) || !$arrayIsNumeric($content = $responseContent->all())) {
             return;
         }
 
@@ -357,7 +361,7 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
     /**
      * @return $this
      */
-    public function send()
+    public function send(): self
     {
         foreach ($this->params as $name => $param) {
             $param = is_bool($param) ? (int)$param : $param;
@@ -392,15 +396,14 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
      * @param ResponseStruct|null $default
      * @return ResponseStruct
      */
-    protected function guessTransformer(ResponseStruct $default = null)
+    protected function guessTransformer(ResponseStruct $default = null): ResponseStruct
     {
         $requestContentType = $this->headers['accept'] ?? null;
         $responseContentType = !$this->rawResponse ? null :
             (current($this->rawResponse->getHeader('content-type')) ?: null);
         $contentType = $responseContentType ?: $requestContentType;
-        $transformer = (!$contentType && $default) ? $default : ResponseStruct::make($contentType);
 
-        return $transformer;
+        return (!$contentType && $default) ? $default : ResponseStruct::make($contentType);
     }
 
     /**
@@ -423,16 +426,16 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
     /**
      * @return ResponseStruct
      */
-    public function getTransformer()
+    public function getTransformer(): ResponseStruct
     {
         return $this->transformer ?: $this->guessTransformer();
     }
 
     /**
      * @param ErrorResponse|null $transformer
-     * @return Endpoint
+     * @return $this
      */
-    public function setErrorTransformer(ErrorResponse $transformer = null): Endpoint
+    public function setErrorTransformer(ErrorResponse $transformer = null): self
     {
         $localTransformer = $this->errorTransformerName ?  app($this->errorTransformerName) : null;
         $this->errorTransformer = $transformer ?: $localTransformer;
@@ -448,7 +451,7 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
     /**
      * @return ErrorResponse
      */
-    public function getErrorTransformer()
+    public function getErrorTransformer(): ErrorResponse
     {
         return $this->errorTransformer;
     }
@@ -462,9 +465,9 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
     }
 
     /**
-     * @return ResponseStruct
+     * @return ResponseStruct|null
      */
-    public function getResponseContent()
+    public function getResponseContent(): ?ResponseStruct
     {
         return $this->responseContent;
     }
@@ -534,9 +537,9 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
     }
 
     /**
-     * @return Adapter
+     * @return Adapter|null
      */
-    public function getAdapter(): Adapter
+    public function getAdapter(): ?Adapter
     {
         return $this->adapter;
     }
@@ -630,7 +633,7 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
      * @param array $args
      * @return mixed
      */
-    public function __call($method, array $args)
+    public function __call(string $method, array $args)
     {
         return $this->adapter->$method(...$args);
     }
@@ -646,7 +649,7 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
     /**
      * {@inheritDoc}
      */
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         return $this->responseContent->has($offset);
     }
@@ -678,7 +681,7 @@ class Endpoint implements ArrayAccess, Countable, IteratorAggregate
     /**
      * {@inheritDoc}
      */
-    public function count()
+    public function count(): int
     {
         return $this->responseContent->count();
     }
